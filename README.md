@@ -9,6 +9,9 @@ annotation which has expired on the release.
 This first cut of code is initially intended to run in the [Lendi](https://www.lendi.com.au)
 k8s clusters to clean up helm releases in our development environment.
 
+The goal of this project is very much to support the Lendi development
+workflow and has been built around the infrastructure here.
+
 **Our setup**
 - EKS (version >= 1.19)
 - Helm releases stored as k8s secrets
@@ -16,14 +19,14 @@ k8s clusters to clean up helm releases in our development environment.
 
 ## usage as tool
 
-Support 2 modes of running
+Support 2 modes of running (delete | scan)
 
 ```bash
 ./helm-janitor [command] [options]
 
 [command]
 delete <release>
-scan
+scan <selector>
 
 [delete-options]
 --namespace <namespace>
@@ -34,6 +37,16 @@ scan
 --include-namespace <expression match>
 --exclude-namespace <expression match>
 ```
+
+### scan purpose
+
+Like the [kube-janitor project](https://codeberg.org/hjacobs/kube-janitor),
+we wish to expire helm releases that exceed the `ttl` value. During our
+`helm instal...` step, we tag the release secret afterwards with a
+`janitor: true` label if we wish to clean up the release. We then read the
+release (secret) annotations config to check the `helm-janitor/ttl` or
+`helm-janitor/expiry` values and checks against the creationTime to see if we
+should delete the release.
 
 ## k8s mgmt use-cases/ecosystem
 
@@ -61,6 +74,10 @@ Other k8s native option is to run this as a k8s cronjob that can remove the helm
 
 Needs an RBAC cluster role binding which has the right amount of cluster
 permissions to remove a helm release. 
+
+## contributing
+
+We may reject PRs that break compatibility with our k8s setup.
 
 ## future work
 
