@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 	client "github.com/edify42/helm-janitor/internal/eks"
+	"github.com/edify42/helm-janitor/pkg/utils"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
@@ -107,6 +108,7 @@ func main() {
 		}
 		if expired {
 			log.Infof("deleting release %s in namespace %s", release.Name, release.Namespace)
+			cli := action.NewUninstall(actionConfig)
 		}
 	}
 
@@ -117,21 +119,29 @@ func main() {
 }
 
 // CheckReleaseExpired will return true if the release should be deleted.
+// Safely returns false for any errors that occur.
 func CheckReleaseExpired(r release.Release) (bool, error) {
 	log.Debugf("Processing release: %s in namespace: ", r.Name, r.Namespace)
 	ttlKey := "helm-janitor/ttl"
 	expiryKey := "helm-janitor/expiry"
 	now := time.Now()
 	currentTime := now.Unix()
-	var sevenDaysSeconds int64 = 7 * 24 * 60 * 60 // think about making this env variable...
 	if val, ok := r.Labels[ttlKey]; ok {
 		log.Debugf("found %s: %s", ttlKey, val)
+		timeLeft, err := utils.ParseTime(val)
+		if err != nil {
+			log.Errorf("%s key value: %s not valid - using default 7 days instead", ttlKey, val)
+			timeLeft.Seconds = 7 * 24 * 60 * 60 // 7 days in seconds.
+		}
+		var expirySeconds int64 = int64(timeLeft.Seconds) // TODO: think about making this env variable? some kind of autocleanup after X days.
 		// work off the modifiedAt key
 		if modifiedTime, ok := r.Labels["modifiedAt"]; ok {
 			log.Debugf("release: %s was modifiedAt %s", r.Name, modifiedTime)
 			if n, err := strconv.ParseInt(modifiedTime, 10, 64); err == nil {
-				if currentTime-n-sevenDaysSeconds > 0 {
-					log.Infof("")
+				if currentTime-n-expirySeconds > 0 {
+					return true, nil
+				} else {
+					return false, nil
 				}
 			} else {
 				return false, fmt.Errorf("modifiedTime cannot me made to int64")
@@ -139,6 +149,7 @@ func CheckReleaseExpired(r release.Release) (bool, error) {
 		} else {
 			return false, fmt.Errorf("no modifiedAt label to work off on release: %s", r.Name)
 		}
+		// work off
 	} else if val, ok := r.Labels[expiryKey]; ok {
 		log.Debugf("found %s: %s", expiryKey, val)
 	} else {
