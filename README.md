@@ -25,11 +25,12 @@ Support 2 modes of running (delete | scan)
 ./helm-janitor [command] [options]
 
 [command]
-delete <release>
-scan <selector>
+delete <selector> # helm-janitor=true
+scan <selector> # BRANCH=feat/test-something,REPOSITORY=cool-repo
 
 [delete-options]
 --namespace <namespace>
+--all-namespaces
 
 [scan-options]:
 --namespace <namespace>
@@ -38,7 +39,17 @@ scan <selector>
 --exclude-namespace <expression match>
 ```
 
-### scan purpose
+### delete use-case
+
+When we run our k8s deployments via [Helm](https://helm.sh), we also tag and
+label the helm releases (secrets) with our tooling using the repository and
+the branch that the release was deployed from.
+
+Teams have a webhook configured on there repo which fires when a PR merged /
+branch is closed and [Stack Janitor](https://github.com/lendi-au/stackjanitor)
+will clean up the left over running containers.
+
+### scan use-case
 
 Like the [kube-janitor project](https://codeberg.org/hjacobs/kube-janitor),
 we wish to expire helm releases that exceed the `ttl` value. During our

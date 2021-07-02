@@ -35,6 +35,9 @@ func New(cluster *types.Cluster) (*kubernetes.Clientset, error) {
 	return clientset, nil
 }
 
+// GenToken will get the EKS cluster oauth2 token.
+// Consider refresh flow instead and make token private
+// and accessible via function call.
 func GenToken(cluster *string) (token.Token, error) {
 	gen, err := token.NewGenerator(true, false)
 	if err != nil {
