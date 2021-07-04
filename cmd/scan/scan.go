@@ -1,82 +1,40 @@
-package main
+package scan
 
 import (
-	"context"
-	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/eks"
 	janitorconfig "github.com/edify42/helm-janitor/internal/config"
-	client "github.com/edify42/helm-janitor/internal/eks"
 	"github.com/edify42/helm-janitor/pkg/utils"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/release"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
-func main() {
+// main struct for this file.
 
-	// logging setup
-	log.SetFormatter(&log.JSONFormatter{})
-
-	envConfig := janitorconfig.EnvConfig{}
-	envConfig.Init()
-
-	// k8s connectivity
-	cfg, err := config.LoadDefaultConfig(
-		context.TODO(),
-		config.WithRegion(envConfig.Region),
-	)
-	if err != nil {
-		// handle error :(
-		log.Panic("config management issue...")
+func RunV2(sr InputRun) {
+	mycfg := sr.Config()
+	cfg := sr.Makeawscfg()
+	cluster := sr.Getekscluster(cfg)
+	if !mycfg.DebugFlag {
+		log.Info("should clean " + cluster.CAFile)
+		defer os.Remove(cluster.CAFile)
+	} else {
+		log.Info("no clean")
 	}
-
-	eksClient := eks.NewFromConfig(cfg)
-
-	result, err := eksClient.DescribeCluster(context.TODO(), &eks.DescribeClusterInput{Name: &envConfig.Cluster})
-	if err != nil {
-		log.Fatalf("Error calling DescribeCluster: %v", err)
-	}
-	clientset, err := client.New(result.Cluster)
-	if err != nil {
-		log.Fatalf("Error creating clientset: %v", err)
-	}
-	nodes, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatalf("Error getting EKS nodes: %v", err)
-	}
-	log.Debugf("There are %d nodes associated with cluster %s", len(nodes.Items), envConfig.Cluster)
-
-	// first generate a temp file to write the cluster CA to
-	file, err := ioutil.TempFile(envConfig.TmpFileLocation, envConfig.TmpFilePrefix)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if !envConfig.DebugFlag {
-		defer os.Remove(file.Name())
-	}
-	decoded, _ := base64.StdEncoding.DecodeString(*result.Cluster.CertificateAuthority.Data)
-	file.Write([]byte(decoded))
-
-	// configure the helm api to re-use the EKS auth above.
+	defer os.Remove(cluster.CAFile)
 	releaseNamespace := ""
-	newToken, err := client.GenToken(result.Cluster.Name)
-	if err != nil {
-		panic("Shieeet")
-	}
+
+	// direct copy...
 	actionConfig := new(action.Configuration)
 	settings := cli.New()
-	settings.KubeAPIServer = *result.Cluster.Endpoint
-	settings.KubeToken = newToken.Token
-	settings.KubeCaFile = file.Name()
+	settings.KubeAPIServer = cluster.Endpoint
+	settings.KubeToken = cluster.Token
+	settings.KubeCaFile = cluster.CAFile
 	if err := actionConfig.Init(settings.RESTClientGetter(), releaseNamespace, os.Getenv("HELM_DRIVER"), func(format string, v ...interface{}) {
 		fmt.Printf(format, v)
 	}); err != nil {
@@ -84,7 +42,7 @@ func main() {
 	}
 
 	iCli := action.NewList(actionConfig)
-	iCli.Selector = envConfig.JanitorLabel
+	iCli.Selector = mycfg.JanitorLabel
 	rel, err := iCli.Run()
 	if err != nil {
 		panic(err)
@@ -122,9 +80,9 @@ func main() {
 		}
 	}
 
-	// Finally throw the panic.
+	// Finally throw the last error!.
 	if errorCount > 0 {
-		log.Fatalf("Encountered %d errors while cleaning up helm releases - investigation required.", errorCount)
+		log.Errorf("Encountered %d errors while cleaning up helm releases - investigation required.", errorCount)
 	}
 }
 
@@ -180,4 +138,9 @@ func NameList(r []*release.Release) []string {
 		list = append(list, user.Name)
 	}
 	return list
+}
+
+func cleanup(cafile string) {
+	log.Infof("Cleaning CAFile: %s", cafile)
+	os.Remove(cafile)
 }

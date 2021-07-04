@@ -28,16 +28,15 @@ Support 2 modes of running (delete | scan)
 delete <selector> # helm-janitor=true
 scan <selector> # BRANCH=feat/test-something,REPOSITORY=cool-repo
 
-[delete-options]
+[options]
 --namespace <namespace>
---all-namespaces
-
-[scan-options]:
---namespace <namespace>
---all-namespaces
+--all-namespaces (default)
 --include-namespace <expression match>
 --exclude-namespace <expression match>
 ```
+
+`scan` will scan all namespaces if no specific namespace or expressions are
+used.
 
 ### delete use-case
 
