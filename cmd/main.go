@@ -46,6 +46,8 @@ func main() {
 				log.Infof("Scanning for releases which match: %s", args[0])
 				scanner.Selector = args[0]
 			}
+			scanner.AllNamespaces = allNamespaces
+			scanner.Namespace = releaseNamespace
 			scanner.Init()
 			scan.RunV2(scanner)
 		},

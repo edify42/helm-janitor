@@ -23,8 +23,12 @@ type InputRun interface {
 }
 
 type ScanClient struct {
-	Selector string
-	Env      janitorconfig.EnvConfig
+	Selector          string
+	Namespace         string
+	AllNamespaces     bool
+	IncludeNamespaces string
+	ExcludeNamespaces string
+	Env               janitorconfig.EnvConfig
 }
 
 func NewScanClient() *ScanClient {

@@ -54,9 +54,14 @@ Like the [kube-janitor project](https://codeberg.org/hjacobs/kube-janitor),
 we wish to expire helm releases that exceed the `ttl` value. During our
 `helm instal...` step, we tag the release secret afterwards with a
 `helm-janitor: true` label if we wish to clean up the release. We then read the
-release (secret) annotations config to check the `helm-janitor/ttl` or
-`helm-janitor/expiry` values and checks against the creationTime to see if we
+release values `janitorAnnotations` config to check the `janitor/ttl` or
+`janitor/expiry` values and checks against the creationTime to see if we
 should delete the release.
+
+```yaml
+janitorAnnotations:
+  janitor/expiry: "2021-07-03T07:06:45Z"
+```
 
 ## k8s mgmt use-cases/ecosystem
 

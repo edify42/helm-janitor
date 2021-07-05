@@ -7,6 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.7.0
 	github.com/aws/aws-sdk-go-v2/config v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/eks v1.7.0
+	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.0
 	helm.sh/helm/v3 v3.6.2

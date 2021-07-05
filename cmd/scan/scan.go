@@ -7,6 +7,7 @@ import (
 
 	janitorconfig "github.com/edify42/helm-janitor/internal/config"
 	"github.com/edify42/helm-janitor/pkg/utils"
+	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
@@ -71,12 +72,12 @@ func RunV2(sr InputRun) {
 				log.Fatal(err)
 			}
 			cli := action.NewUninstall(actionConfig)
-			cli.DryRun = true
-			// rel, err := cli.Run(release.Name)
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
-			// log.Infof("deleted: %s", rel.Info)
+			cli.DryRun = false
+			rel, err := cli.Run(release.Name)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Infof("deleted: %s", rel.Info)
 		}
 	}
 
@@ -84,6 +85,12 @@ func RunV2(sr InputRun) {
 	if errorCount > 0 {
 		log.Errorf("Encountered %d errors while cleaning up helm releases - investigation required.", errorCount)
 	}
+}
+
+// Annotations
+type Annotations struct {
+	Expiry string `json:"janitor/expiry,omitempty"`
+	Ttl    string `json:"janitor/ttl,omitempty"`
 }
 
 // CheckReleaseExpired will return true if the release should be deleted.
@@ -94,11 +101,20 @@ func CheckReleaseExpired(r release.Release) (bool, error) {
 	expiryKey := janitorconfig.ExpiryKey
 	now := time.Now()
 	deployedTime := r.Info.LastDeployed
-	if val, ok := r.Labels[ttlKey]; ok {
-		log.Debugf("found %s: %s", ttlKey, val)
-		timeLeft, err := utils.ParseTime(val)
+	annotations := r.Config[janitorconfig.AnnotationKey]
+	var output Annotations
+	cfg := &mapstructure.DecoderConfig{
+		Metadata: nil,
+		Result:   &output,
+		TagName:  "json",
+	}
+	decoder, _ := mapstructure.NewDecoder(cfg)
+	decoder.Decode(annotations)
+	if output.Ttl != "" {
+		log.Debugf("found %s: %s", ttlKey, output.Ttl)
+		timeLeft, err := utils.ParseTime(output.Ttl)
 		if err != nil {
-			log.Errorf("%s key value: %s not valid - using default 7 days instead", ttlKey, val)
+			log.Errorf("%s key value: %s not valid - using default 7 days instead", ttlKey, output.Ttl)
 			timeLeft.Seconds = janitorconfig.DefaultTTL
 		}
 		var expirySeconds int64 = int64(timeLeft.Seconds)
@@ -120,8 +136,8 @@ func CheckReleaseExpired(r release.Release) (bool, error) {
 		}
 		return false, nil
 		// work off helm-janitor/expiry key instead.
-	} else if val, ok := r.Labels[expiryKey]; ok {
-		log.Debugf("found %s: %s", expiryKey, val)
+	} else if output.Expiry != "" {
+		log.Debugf("found %s: %s", expiryKey, output.Expiry)
 	} else {
 		return false, fmt.Errorf("no %s or %s found", ttlKey, expiryKey)
 		// silently skip only - don't panic
@@ -138,9 +154,4 @@ func NameList(r []*release.Release) []string {
 		list = append(list, user.Name)
 	}
 	return list
-}
-
-func cleanup(cafile string) {
-	log.Infof("Cleaning CAFile: %s", cafile)
-	os.Remove(cafile)
 }
