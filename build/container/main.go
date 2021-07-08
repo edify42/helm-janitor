@@ -2,9 +2,32 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+	"os"
+
+	log "github.com/sirupsen/logrus"
 )
+
+func init() {
+	// Log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	log.SetOutput(os.Stdout)
+
+	logLevel := "info"
+	if os.Getenv("LOG_LEVEL") != "" {
+		logLevel = os.Getenv("LOG_LEVEL")
+	}
+	level, err := log.ParseLevel(logLevel)
+	if err != nil {
+		log.Errorf("Dodgy log level set: %s", logLevel)
+		log.SetLevel(log.WarnLevel)
+	} else {
+		log.SetLevel(level)
+	}
+}
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("X-Access-Token")

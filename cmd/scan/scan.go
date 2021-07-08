@@ -80,6 +80,7 @@ func CheckReleaseExpired(r release.Release) (bool, error) {
 	}
 	decoder, _ := mapstructure.NewDecoder(cfg)
 	decoder.Decode(annotations)
+	// Process the `janitor/ttl` key
 	if output.Ttl != "" {
 		log.Debugf("found %s: %s", ttlKey, output.Ttl)
 		timeLeft, err := utils.ParseTime(output.Ttl)
@@ -105,7 +106,7 @@ func CheckReleaseExpired(r release.Release) (bool, error) {
 			return true, nil
 		}
 		return false, nil
-		// work off helm-janitor/expiry key instead.
+		// work off janitor/expires key instead.
 	} else if output.Expiry != "" {
 		log.Debugf("found %s: %s", expiryKey, output.Expiry)
 	} else {

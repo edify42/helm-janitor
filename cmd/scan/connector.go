@@ -83,9 +83,7 @@ func (sc *ScanClient) Getreleases(c client.EKSCluster, a *action.Configuration, 
 	settings.KubeAPIServer = c.Endpoint
 	settings.KubeToken = c.Token
 	settings.KubeCaFile = c.CAFile
-	if err := a.Init(settings.RESTClientGetter(), releaseNamespace, os.Getenv("HELM_DRIVER"), func(format string, v ...interface{}) {
-		fmt.Printf(format, v)
-	}); err != nil {
+	if err := a.Init(settings.RESTClientGetter(), releaseNamespace, os.Getenv("HELM_DRIVER"), log.Infof); err != nil {
 		panic(err)
 	}
 
