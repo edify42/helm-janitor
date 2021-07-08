@@ -2,13 +2,19 @@ package scan
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	janitorconfig "github.com/edify42/helm-janitor/internal/config"
 	"github.com/edify42/helm-janitor/internal/eks"
 	client "github.com/edify42/helm-janitor/internal/eks"
+	internalhelm "github.com/edify42/helm-janitor/internal/helm"
 	log "github.com/sirupsen/logrus"
+	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/cli"
+	"helm.sh/helm/v3/pkg/release"
 )
 
 // TODO: rename this file...
@@ -20,6 +26,8 @@ type InputRun interface {
 	Makeawscfg() aws.Config
 	Getekscluster(aws.Config) client.EKSCluster
 	Config() janitorconfig.EnvConfig
+	Getreleases(client.EKSCluster, *action.Configuration, internalhelm.HelmList) []*release.Release
+	Deleterelease(*action.Configuration, *release.Release) error
 }
 
 type ScanClient struct {
@@ -66,4 +74,47 @@ func (sc *ScanClient) Getekscluster(c aws.Config) eks.EKSCluster {
 	a := eks.AwsConfig{sc.Env}
 	cluster := a.Init(c)
 	return cluster
+}
+
+// Getreleases will return the array of helm releases
+func (sc *ScanClient) Getreleases(c client.EKSCluster, a *action.Configuration, list internalhelm.HelmList) []*release.Release {
+	releaseNamespace := sc.Namespace // TODO: use the parameters to figure out the namespaces to search.
+	settings := cli.New()
+	settings.KubeAPIServer = c.Endpoint
+	settings.KubeToken = c.Token
+	settings.KubeCaFile = c.CAFile
+	if err := a.Init(settings.RESTClientGetter(), releaseNamespace, os.Getenv("HELM_DRIVER"), func(format string, v ...interface{}) {
+		fmt.Printf(format, v)
+	}); err != nil {
+		panic(err)
+	}
+
+	iCli := list.NewList(a)
+	iCli.Selector = sc.Env.JanitorLabel
+	rel, err := list.RunCommand()
+	if err != nil {
+		log.Panic(err)
+	}
+	releaseList := NameList(rel)
+	log.Debugf("Got a list of releases: %v", releaseList)
+
+	return rel
+}
+
+// Deleterelease will try and delete a release
+func (sc *ScanClient) Deleterelease(a *action.Configuration, rel *release.Release) error {
+	settings := cli.New()
+	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, os.Getenv("HELM_DRIVER"), func(format string, v ...interface{}) {
+		fmt.Printf(format, v)
+	}); err != nil {
+		log.Fatal(err)
+	}
+	run := action.NewUninstall(a)
+	run.DryRun = false
+	out, err := run.Run(rel.Name)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Infof("deleted: %s", out.Info)
+	return nil
 }

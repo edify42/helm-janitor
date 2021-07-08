@@ -6,11 +6,11 @@ import (
 	"time"
 
 	janitorconfig "github.com/edify42/helm-janitor/internal/config"
+	internalhelm "github.com/edify42/helm-janitor/internal/helm"
 	"github.com/edify42/helm-janitor/pkg/utils"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/release"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
@@ -28,32 +28,13 @@ func RunV2(sr InputRun) {
 		log.Info("no clean")
 	}
 	defer os.Remove(cluster.CAFile)
-	releaseNamespace := ""
 
-	// direct copy...
 	actionConfig := new(action.Configuration)
-	settings := cli.New()
-	settings.KubeAPIServer = cluster.Endpoint
-	settings.KubeToken = cluster.Token
-	settings.KubeCaFile = cluster.CAFile
-	if err := actionConfig.Init(settings.RESTClientGetter(), releaseNamespace, os.Getenv("HELM_DRIVER"), func(format string, v ...interface{}) {
-		fmt.Printf(format, v)
-	}); err != nil {
-		panic(err)
-	}
 
-	iCli := action.NewList(actionConfig)
-	iCli.Selector = mycfg.JanitorLabel
-	rel, err := iCli.Run()
-	if err != nil {
-		panic(err)
-	}
-	releaseList := NameList(rel)
-	log.Debugf("Got a list of releases: %v", releaseList)
-
+	newList := internalhelm.New()
+	rel := sr.Getreleases(cluster, actionConfig, newList)
 	// loop through releases, track errors
 	errorCount := 0
-
 	for _, release := range rel {
 		log := log.WithFields(log.Fields{
 			"namespace": release.Namespace,
@@ -66,18 +47,7 @@ func RunV2(sr InputRun) {
 		}
 		if expired {
 			log.Infof("deleting release %s in namespace %s", release.Name, release.Namespace)
-			if err := actionConfig.Init(settings.RESTClientGetter(), release.Namespace, os.Getenv("HELM_DRIVER"), func(format string, v ...interface{}) {
-				fmt.Printf(format, v)
-			}); err != nil {
-				log.Fatal(err)
-			}
-			cli := action.NewUninstall(actionConfig)
-			cli.DryRun = false
-			rel, err := cli.Run(release.Name)
-			if err != nil {
-				log.Fatal(err)
-			}
-			log.Infof("deleted: %s", rel.Info)
+			sr.Deleterelease(actionConfig, release)
 		}
 	}
 
@@ -89,14 +59,14 @@ func RunV2(sr InputRun) {
 
 // Annotations
 type Annotations struct {
-	Expiry string `json:"janitor/expiry,omitempty"`
+	Expiry string `json:"janitor/expires,omitempty"`
 	Ttl    string `json:"janitor/ttl,omitempty"`
 }
 
 // CheckReleaseExpired will return true if the release should be deleted.
 // Safely returns false for any errors that occur.
 func CheckReleaseExpired(r release.Release) (bool, error) {
-	log.Debugf("Processing release: %s in namespace: ", r.Name, r.Namespace)
+	log.Debugf("Processing release: %s in namespace: %s", r.Name, r.Namespace)
 	ttlKey := janitorconfig.TTLKey
 	expiryKey := janitorconfig.ExpiryKey
 	now := time.Now()
