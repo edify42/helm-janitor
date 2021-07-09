@@ -88,7 +88,7 @@ func CheckReleaseExpired(r release.Release) (bool, error) {
 			log.Errorf("%s key value: %s not valid - using default 7 days instead", ttlKey, output.Ttl)
 			timeLeft.Seconds = janitorconfig.DefaultTTL
 		}
-		var expirySeconds int64 = int64(timeLeft.Seconds)
+		var ttl int64 = int64(timeLeft.Seconds)
 		// work off the modifiedAt key - not required.
 		// if modifiedTime, ok := r.Labels["modifiedAt"]; ok {
 		// 	log.Debugf("release: %s was modifiedAt %s", r.Name, modifiedTime)
@@ -101,7 +101,8 @@ func CheckReleaseExpired(r release.Release) (bool, error) {
 		// 	} else {
 		// 		return false, fmt.Errorf("modifiedTime cannot me made to int64")
 		// 	}
-		if now.Unix()-deployedTime.Unix()-expirySeconds > 0 {
+		//
+		if now.Unix()-deployedTime.Unix()-ttl > 0 {
 			log.Debugf("release has expired - last deployed at: %v", deployedTime)
 			return true, nil
 		}
@@ -109,12 +110,22 @@ func CheckReleaseExpired(r release.Release) (bool, error) {
 		// work off janitor/expires key instead.
 	} else if output.Expiry != "" {
 		log.Debugf("found %s: %s", expiryKey, output.Expiry)
+		layout := "2006-01-02T15:04:05Z"
+		t, err := time.Parse(layout, output.Expiry)
+		if err != nil {
+			log.Error(err)
+		}
+		if now.Unix()-t.Unix() > 0 {
+			log.Debugf("release has expired - expired at: %v", t.Local())
+			return true, nil
+		}
 	} else {
 		return false, fmt.Errorf("no %s or %s found", ttlKey, expiryKey)
 		// silently skip only - don't panic
 	}
 	// TODO: remove last catch all...
-	return true, nil
+	log.Debugf("Nothing found here... %v", output)
+	return false, nil
 }
 
 // NameList loops through the releases and returns a []string of the

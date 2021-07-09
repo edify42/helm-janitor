@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	janitorconfig "github.com/edify42/helm-janitor/internal/config"
-	"github.com/edify42/helm-janitor/internal/eks"
 	client "github.com/edify42/helm-janitor/internal/eks"
 	internalhelm "github.com/edify42/helm-janitor/internal/helm"
 	log "github.com/sirupsen/logrus"
@@ -70,8 +69,8 @@ func (sc *ScanClient) Makeawscfg() aws.Config {
 }
 
 // Getekscluster - Return the cluster, endpoints and auth token!
-func (sc *ScanClient) Getekscluster(c aws.Config) eks.EKSCluster {
-	a := eks.AwsConfig{sc.Env}
+func (sc *ScanClient) Getekscluster(c aws.Config) client.EKSCluster {
+	a := client.AwsConfig{sc.Env}
 	cluster := a.Init(c)
 	return cluster
 }
@@ -79,6 +78,7 @@ func (sc *ScanClient) Getekscluster(c aws.Config) eks.EKSCluster {
 // Getreleases will return the array of helm releases
 func (sc *ScanClient) Getreleases(c client.EKSCluster, a *action.Configuration, list internalhelm.HelmList) []*release.Release {
 	releaseNamespace := sc.Namespace // TODO: use the parameters to figure out the namespaces to search.
+	log.Debugf("Getting releases from namespace: %s", releaseNamespace)
 	settings := cli.New()
 	settings.KubeAPIServer = c.Endpoint
 	settings.KubeToken = c.Token
