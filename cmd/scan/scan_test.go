@@ -6,6 +6,11 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	janitorconfig "github.com/edify42/helm-janitor/internal/config"
+	client "github.com/edify42/helm-janitor/internal/eks"
+	internalhelm "github.com/edify42/helm-janitor/internal/helm"
+	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/time"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -116,6 +121,70 @@ func TestCheckReleaseExpired(t *testing.T) {
 			if got != tt.want {
 				t.Errorf("CheckReleaseExpired() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+// Bunch of test function to mock RunV2
+
+type mockInput struct{}
+
+func (m *mockInput) Init() {
+	return
+}
+
+func (m *mockInput) Config() janitorconfig.EnvConfig {
+	return janitorconfig.EnvConfig{
+		Cluster: "test",
+	}
+}
+
+func (m *mockInput) Deleterelease(a *action.Configuration, rel *release.Release) error {
+	return nil
+}
+
+func (m *mockInput) Getekscluster(a aws.Config) client.EKSCluster {
+	return client.EKSCluster{
+		Name:     "local",
+		Endpoint: "localhost",
+	}
+}
+
+func (m *mockInput) Getreleases(c client.EKSCluster, a *action.Configuration, i internalhelm.HelmList) []*release.Release {
+	now := time.Now()
+	return []*release.Release{{
+		Name: "test",
+		Info: &release.Info{
+			LastDeployed: now,
+		},
+	}}
+}
+
+func (m *mockInput) Makeawscfg() aws.Config {
+	return aws.Config{
+		Region: "ap-southeast-2",
+	}
+}
+
+func TestRunV2(t *testing.T) {
+	type args struct {
+		sr InputRun
+	}
+	mock := new(mockInput)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "first test",
+			args: args{
+				sr: mock,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			RunV2(tt.args.sr)
 		})
 	}
 }
