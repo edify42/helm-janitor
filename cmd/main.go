@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"strings"
 
+	"github.com/edify42/helm-janitor/cmd/delete"
 	"github.com/edify42/helm-janitor/cmd/scan"
 	"github.com/edify42/helm-janitor/internal/config"
 	log "github.com/sirupsen/logrus"
@@ -44,7 +43,13 @@ func main() {
 		Long:  `simple wrapper around helm delete which can be used by this tool`,
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Delete function mock: " + strings.Join(args, " "))
+			delete.ValidateArgs(args)
+			purger := delete.NewClient()
+			log.Infof("Deleting the release: %s in namespace %s", args[0], releaseNamespace)
+			purger.Release = args[0]
+			purger.Namespace = releaseNamespace
+			purger.Init()
+			scan.RunV2(purger)
 		},
 	}
 
