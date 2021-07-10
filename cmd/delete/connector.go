@@ -80,11 +80,15 @@ func (c *Client) Deleterelease(a *action.Configuration, rel *release.Release) er
 		log.Fatal(err)
 	}
 	run := action.NewUninstall(a)
-	run.DryRun = false
+	run.DryRun = c.Dryrun
 	out, err := run.Run(rel.Name)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Infof("deleted: %s", out.Info)
+	if c.Dryrun {
+		log.Infof("dry-run mode enabled - release: %s not actually deleted", rel.Name)
+	} else {
+		log.Infof("deleted: %s", out.Info)
+	}
 	return nil
 }
