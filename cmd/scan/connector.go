@@ -2,7 +2,6 @@ package scan
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -26,7 +25,7 @@ type InputRun interface {
 	Getekscluster(aws.Config) client.EKSCluster
 	Config() janitorconfig.EnvConfig
 	Getreleases(client.EKSCluster, *action.Configuration, internalhelm.HelmList) []*release.Release
-	Deleterelease(*action.Configuration, *release.Release) error
+	Deleterelease(*action.Configuration, *release.Release, internalhelm.HelmDelete) error
 }
 
 type ScanClient struct {
@@ -36,6 +35,7 @@ type ScanClient struct {
 	IncludeNamespaces string
 	ExcludeNamespaces string
 	Env               janitorconfig.EnvConfig
+	Dryrun            bool
 }
 
 func NewScanClient() *ScanClient {
@@ -87,7 +87,7 @@ func (sc *ScanClient) Getreleases(c client.EKSCluster, a *action.Configuration, 
 		panic(err)
 	}
 
-	iCli := list.NewList(a)
+	iCli := list.ActionNewList(a) // super confusing? same obj in memory so...
 	iCli.Selector = sc.Env.JanitorLabel
 	rel, err := list.RunCommand()
 	if err != nil {
@@ -100,16 +100,14 @@ func (sc *ScanClient) Getreleases(c client.EKSCluster, a *action.Configuration, 
 }
 
 // Deleterelease will try and delete a release
-func (sc *ScanClient) Deleterelease(a *action.Configuration, rel *release.Release) error {
+func (sc *ScanClient) Deleterelease(a *action.Configuration, rel *release.Release, del internalhelm.HelmDelete) error {
 	settings := cli.New()
-	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, os.Getenv("HELM_DRIVER"), func(format string, v ...interface{}) {
-		fmt.Printf(format, v)
-	}); err != nil {
+	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, os.Getenv("HELM_DRIVER"), log.Infof); err != nil {
 		log.Fatal(err)
 	}
-	run := action.NewUninstall(a)
-	run.DryRun = false
-	out, err := run.Run(rel.Name)
+	run := del.ActionNewUninstall(a)
+	run.DryRun = sc.Dryrun
+	out, err := del.RunCommand(rel.Name)
 	if err != nil {
 		log.Fatal(err)
 	}

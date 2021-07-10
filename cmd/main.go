@@ -34,6 +34,7 @@ func init() {
 func main() {
 	var releaseNamespace string
 	var allNamespaces bool
+	var dryRun bool
 	var includeNamespaces string
 	var excludeNamespaces string
 	// logging setup
@@ -48,16 +49,16 @@ func main() {
 			log.Infof("Deleting the release: %s in namespace %s", args[0], releaseNamespace)
 			purger.Release = args[0]
 			purger.Namespace = releaseNamespace
+			purger.Dryrun = dryRun
 			purger.Init()
-			scan.RunV2(purger)
+			delete.RunV2(purger)
 		},
 	}
 
 	cmdDelete.PersistentFlags().StringVarP(&releaseNamespace, "namespace", "n", "", "namespace of the release")
-	cmdDelete.Flags().BoolVarP(&allNamespaces, "all-namespaces", "a", false, "search all namespaces")
+	cmdDelete.Flags().BoolVarP(&dryRun, "dry-run", "d", false, "activate dry run mode (don't actually do anything)")
+	// cmdDelete.Flags().BoolVarP(&allNamespaces, "all-namespaces", "a", false, "search all namespaces")
 	cmdDelete.MarkPersistentFlagRequired("namespace")
-	cmdDelete.Flags().StringVarP(&includeNamespaces, "include-namespaces", "i", "", "search for releases in namespaces matching this expression")
-	cmdDelete.Flags().StringVarP(&excludeNamespaces, "exclude-namespaces", "e", "", "exclude releases in namespaces matching this expression")
 
 	var cmdScan = &cobra.Command{
 		Use:   "scan [k8s label selector]",
@@ -72,6 +73,7 @@ func main() {
 				log.Infof("Scanning for releases which match: %s", args[0])
 				scanner.Selector = args[0]
 			}
+			scanner.Dryrun = dryRun
 			scanner.AllNamespaces = allNamespaces
 			scanner.Namespace = releaseNamespace
 			scanner.Init()
@@ -80,6 +82,9 @@ func main() {
 	}
 	cmdScan.Flags().StringVarP(&releaseNamespace, "namespace", "n", "", "namespace of the release")
 	cmdScan.Flags().BoolVarP(&allNamespaces, "all-namespaces", "a", true, "search all namespaces")
+	cmdScan.Flags().BoolVarP(&dryRun, "dry-run", "d", false, "activate dry run mode (don't actually do anything)")
+	cmdScan.Flags().StringVarP(&includeNamespaces, "include-namespaces", "i", "", "search for releases in namespaces matching this expression")
+	cmdScan.Flags().StringVarP(&excludeNamespaces, "exclude-namespaces", "e", "", "exclude releases in namespaces matching this expression")
 
 	var rootCmd = &cobra.Command{Use: config.AppName}
 	rootCmd.AddCommand(cmdDelete, cmdScan)
