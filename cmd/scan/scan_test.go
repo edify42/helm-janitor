@@ -128,6 +128,7 @@ func TestCheckReleaseExpired(t *testing.T) {
 // Bunch of test function to mock RunV2
 
 type mockInput struct{}
+type mockDelete struct{}
 
 func (m *mockInput) Init() {
 	return
@@ -139,7 +140,7 @@ func (m *mockInput) Config() janitorconfig.EnvConfig {
 	}
 }
 
-func (m *mockInput) Deleterelease(a *action.Configuration, rel *release.Release) error {
+func (m *mockInput) Deleterelease(a *action.Configuration, rel *release.Release, d internalhelm.HelmDelete) error {
 	return nil
 }
 
@@ -165,6 +166,14 @@ func (m *mockInput) Makeawscfg() aws.Config {
 		Region: "ap-southeast-2",
 	}
 }
+
+// func (d *mockDelete) RunCommand(s string) (*release.UninstallReleaseResponse, error) {
+// 	return &release.UninstallReleaseResponse{Info: "yo"}, nil
+// }
+
+// func (d *mockDelete) ActionNewUninstall(c *action.Configuration) *action.Uninstall {
+// 	return &action.Uninstall{}
+// }
 
 func TestRunV2(t *testing.T) {
 	type args struct {

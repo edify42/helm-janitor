@@ -46,6 +46,7 @@ func ParseTime(input string) (Time, error) {
 			rtn.Minutes = value / 60
 			rtn.Seconds = value
 		}
+		return rtn, nil
 	}
 	return rtn, fmt.Errorf("input %s not valid", input)
 }

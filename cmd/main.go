@@ -67,7 +67,10 @@ func main() {
 		By default we always search for the helm-janitor: true label`,
 		Args: cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-			hasSelector := scan.ValidateScanArg(args)
+			hasSelector, err := scan.ValidateScanArg(args)
+			if err != nil {
+				log.Fatalf("Bad selector input: %v", err)
+			}
 			scanner := scan.NewScanClient()
 			if hasSelector {
 				log.Infof("Scanning for releases which match: %s", args[0])

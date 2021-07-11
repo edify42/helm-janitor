@@ -66,7 +66,7 @@ func (d *Client) Makeawscfg() aws.Config {
 
 // Getekscluster - Return the cluster, endpoints and auth token!
 func (d *Client) Getekscluster(c aws.Config) client.EKSCluster {
-	a := client.AwsConfig{d.Env}
+	a := client.AwsConfig{J: d.Env}
 	cluster := a.Init(c)
 	return cluster
 }

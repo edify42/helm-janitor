@@ -13,7 +13,7 @@ import (
 )
 
 type AwsConfig struct {
-	janitorconfig.EnvConfig
+	J janitorconfig.EnvConfig
 }
 
 // aws specific EKS logic.
@@ -29,7 +29,7 @@ func (a *AwsConfig) Init(cfg aws.Config) EKSCluster {
 	cluster := EKSCluster{}
 	eksClient := eks.NewFromConfig(cfg)
 
-	result, err := eksClient.DescribeCluster(context.TODO(), &eks.DescribeClusterInput{Name: &a.Cluster})
+	result, err := eksClient.DescribeCluster(context.TODO(), &eks.DescribeClusterInput{Name: &a.J.Cluster})
 	if err != nil {
 		log.Fatalf("Error calling DescribeCluster: %v", err)
 	}
@@ -44,11 +44,11 @@ func (a *AwsConfig) Init(cfg aws.Config) EKSCluster {
 	if err != nil {
 		log.Fatalf("Error getting EKS nodes: %v", err)
 	}
-	log.Debugf("There are %d nodes associated with cluster %s", len(nodes.Items), a.Cluster)
+	log.Debugf("There are %d nodes associated with cluster %s", len(nodes.Items), a.J.Cluster)
 
 	// first generate a temp file to write the cluster CA to
 	// handle file close in parent function
-	file, err := ioutil.TempFile(a.TmpFileLocation, a.TmpFilePrefix)
+	file, err := ioutil.TempFile(a.J.TmpFileLocation, a.J.TmpFilePrefix)
 	if err != nil {
 		log.Fatal(err)
 	}
