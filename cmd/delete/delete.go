@@ -3,6 +3,7 @@ package delete
 import (
 	"os"
 
+	internalhelm "github.com/edify42/helm-janitor/internal/helm"
 	log "github.com/sirupsen/logrus"
 
 	"helm.sh/helm/v3/pkg/action"
@@ -26,7 +27,8 @@ func RunV2(sr InputRun) {
 		Name:      mycfg.Release,
 		Namespace: mycfg.Namespace,
 	}
-	err := sr.Deleterelease(actionConfig, &rel)
+	del := internalhelm.NewDelete()
+	err := sr.Deleterelease(cluster, actionConfig, &rel, del)
 	if err != nil {
 		log.Error(err)
 	}

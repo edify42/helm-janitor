@@ -2,7 +2,6 @@ package delete
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -13,6 +12,7 @@ import (
 
 	janitorconfig "github.com/edify42/helm-janitor/internal/config"
 	client "github.com/edify42/helm-janitor/internal/eks"
+	internalhelm "github.com/edify42/helm-janitor/internal/helm"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -35,7 +35,7 @@ type InputRun interface {
 	Init()
 	Makeawscfg() aws.Config
 	Getekscluster(aws.Config) client.EKSCluster
-	Deleterelease(*action.Configuration, *release.Release) error
+	Deleterelease(client.EKSCluster, *action.Configuration, *release.Release, internalhelm.HelmDelete) error
 }
 
 // Config - return it!
@@ -72,19 +72,22 @@ func (d *Client) Getekscluster(c aws.Config) client.EKSCluster {
 }
 
 // Deleterelease will try and delete a release -> Need to reconfigure...
-func (c *Client) Deleterelease(a *action.Configuration, rel *release.Release) error {
+func (c *Client) Deleterelease(eks client.EKSCluster, a *action.Configuration, rel *release.Release, del internalhelm.HelmDelete) error {
 	settings := cli.New()
-	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, os.Getenv("HELM_DRIVER"), func(format string, v ...interface{}) {
-		fmt.Printf(format, v)
-	}); err != nil {
+	settings.KubeAPIServer = eks.Endpoint
+	settings.KubeToken = eks.Token
+	settings.KubeCaFile = eks.CAFile
+	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, os.Getenv("HELM_DRIVER"), log.Infof); err != nil {
 		log.Fatal(err)
 	}
-	run := action.NewUninstall(a)
+	run := del.ActionNewUninstall(a)
 	run.DryRun = c.Dryrun
-	out, err := run.Run(rel.Name)
+	out, err := del.RunCommand(rel.Name)
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Infof("deleted: %s", out.Info)
+
 	if c.Dryrun {
 		log.Infof("dry-run mode enabled - release: %s not actually deleted", rel.Name)
 	} else {
