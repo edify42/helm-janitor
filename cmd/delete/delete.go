@@ -14,7 +14,8 @@ import (
 func RunV2(sr InputRun) {
 	mycfg := sr.Config()
 	cfg := sr.Makeawscfg()
-	cluster := sr.Getekscluster(cfg)
+	g := sr.Makeekscfg()
+	cluster := sr.Getekscluster(cfg, g)
 	if !mycfg.Env.DebugFlag {
 		log.Info("should clean " + cluster.CAFile)
 		defer os.Remove(cluster.CAFile)

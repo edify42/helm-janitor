@@ -18,9 +18,11 @@ import (
 // main struct for this file.
 
 func RunV2(sr InputRun) {
+
+	b := sr.Makeekscfg()
 	mycfg := sr.Config()
 	cfg := sr.Makeawscfg()
-	cluster := sr.Getekscluster(cfg)
+	cluster := sr.Getekscluster(cfg, b)
 	if !mycfg.DebugFlag {
 		log.Info("should clean " + cluster.CAFile)
 		defer os.Remove(cluster.CAFile)

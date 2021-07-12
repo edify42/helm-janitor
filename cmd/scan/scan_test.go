@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	janitorconfig "github.com/edify42/helm-janitor/internal/config"
+	"github.com/edify42/helm-janitor/internal/eks"
 	client "github.com/edify42/helm-janitor/internal/eks"
 	internalhelm "github.com/edify42/helm-janitor/internal/helm"
 	"helm.sh/helm/v3/pkg/action"
@@ -144,7 +145,7 @@ func (m *mockInput) Deleterelease(a *action.Configuration, rel *release.Release,
 	return nil
 }
 
-func (m *mockInput) Getekscluster(a aws.Config) client.EKSCluster {
+func (m *mockInput) Getekscluster(a aws.Config, e eks.Generator) client.EKSCluster {
 	return client.EKSCluster{
 		Name:     "local",
 		Endpoint: "localhost",
@@ -159,6 +160,10 @@ func (m *mockInput) Getreleases(c client.EKSCluster, a *action.Configuration, i 
 			LastDeployed: now,
 		},
 	}}
+}
+
+func (m *mockInput) Makeekscfg() eks.Generator {
+	return &eks.GeneratorType{}
 }
 
 func (m *mockInput) Makeawscfg() aws.Config {

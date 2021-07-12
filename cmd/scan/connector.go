@@ -22,10 +22,11 @@ import (
 type InputRun interface {
 	Init()
 	Makeawscfg() aws.Config
-	Getekscluster(aws.Config) client.EKSCluster
+	Getekscluster(aws.Config, client.Generator) client.EKSCluster
 	Config() janitorconfig.EnvConfig
 	Getreleases(client.EKSCluster, *action.Configuration, internalhelm.HelmList) []*release.Release
 	Deleterelease(*action.Configuration, *release.Release, internalhelm.HelmDelete) error
+	Makeekscfg() client.Generator // Experimental. Using this to mock...
 }
 
 type ScanClient struct {
@@ -40,6 +41,11 @@ type ScanClient struct {
 
 func NewScanClient() *ScanClient {
 	return &ScanClient{}
+}
+
+// Loose - experimental...
+func (sc *ScanClient) Makeekscfg() client.Generator {
+	return &client.GeneratorType{}
 }
 
 // Init - initialise!
@@ -69,9 +75,9 @@ func (sc *ScanClient) Makeawscfg() aws.Config {
 }
 
 // Getekscluster - Return the cluster, endpoints and auth token!
-func (sc *ScanClient) Getekscluster(c aws.Config) client.EKSCluster {
+func (sc *ScanClient) Getekscluster(c aws.Config, g client.Generator) client.EKSCluster {
 	a := client.AwsConfig{J: sc.Env}
-	cluster := a.Init(c)
+	cluster := a.Init(c, g)
 	return cluster
 }
 

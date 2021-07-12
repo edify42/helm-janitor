@@ -34,8 +34,9 @@ type InputRun interface {
 	Config() *Client
 	Init()
 	Makeawscfg() aws.Config
-	Getekscluster(aws.Config) client.EKSCluster
+	Getekscluster(aws.Config, client.Generator) client.EKSCluster
 	Deleterelease(client.EKSCluster, *action.Configuration, *release.Release, internalhelm.HelmDelete) error
+	Makeekscfg() client.Generator // Experimental. Using this to mock...
 }
 
 // Config - return it!
@@ -49,6 +50,11 @@ func (d *Client) Init() {
 	test.Init() // get the default values...again.
 	d.Env = test
 	log.Infof("Delete client initialised with values %v", d)
+}
+
+// Loose - experimental...
+func (d *Client) Makeekscfg() client.Generator {
+	return &client.GeneratorType{}
 }
 
 // Makeawscfg - creates the cfg object
@@ -65,9 +71,9 @@ func (d *Client) Makeawscfg() aws.Config {
 }
 
 // Getekscluster - Return the cluster, endpoints and auth token!
-func (d *Client) Getekscluster(c aws.Config) client.EKSCluster {
+func (d *Client) Getekscluster(c aws.Config, g client.Generator) client.EKSCluster {
 	a := client.AwsConfig{J: d.Env}
-	cluster := a.Init(c)
+	cluster := a.Init(c, g)
 	return cluster
 }
 
