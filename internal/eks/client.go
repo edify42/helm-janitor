@@ -45,10 +45,6 @@ func NewGenerator() *GeneratorType {
 	return &GeneratorType{}
 }
 
-func (g *GeneratorType) DescribeCluster(e *eks.Client, cluster string) (*eks.DescribeClusterOutput, error) {
-	return e.DescribeCluster(context.TODO(), &eks.DescribeClusterInput{Name: &cluster})
-}
-
 type Generator interface {
 	DescribeCluster(*eks.Client, string) (*eks.DescribeClusterOutput, error)
 	GenToken(*string) (token.Token, error)
@@ -56,6 +52,10 @@ type Generator interface {
 	WriteCA(AwsConfig, *eks.DescribeClusterOutput) string
 	// NewGenerator(bool, bool) (token.Generator, error)
 	// GetWithOptions(*token.GetTokenOptions) (token.Token, error)
+}
+
+func (g *GeneratorType) DescribeCluster(e *eks.Client, cluster string) (*eks.DescribeClusterOutput, error) {
+	return e.DescribeCluster(context.TODO(), &eks.DescribeClusterInput{Name: &cluster})
 }
 
 // TestCluster is a tough function to test as it makes a call to Nodes().
@@ -90,7 +90,7 @@ func (g *GeneratorType) GenToken(cluster *string) (token.Token, error) {
 	return gen.GetWithOptions(opts)
 }
 
-// WriteCA
+// WriteCA - need to pass in another interface if i wanna mock this.
 func (g *GeneratorType) WriteCA(a AwsConfig, e *eks.DescribeClusterOutput) string {
 	file, err := ioutil.TempFile(a.J.TmpFileLocation, a.J.TmpFilePrefix)
 	if err != nil {

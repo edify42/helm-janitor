@@ -10,6 +10,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.0
+	gotest.tools v2.2.0+incompatible // indirect
 	helm.sh/helm/v3 v3.6.2
 	k8s.io/apimachinery v0.21.2
 	k8s.io/client-go v0.21.2
