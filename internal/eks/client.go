@@ -39,7 +39,9 @@ func New(cluster *types.Cluster, tok token.Token) (*kubernetes.Clientset, error)
 
 // <experiment>
 // Generator is experimental... AS IS ALL CODE BELOW...
-type GeneratorType struct{}
+type GeneratorType struct {
+	Context context.Context
+}
 
 func NewGenerator() *GeneratorType {
 	return &GeneratorType{}
@@ -55,7 +57,7 @@ type Generator interface {
 }
 
 func (g *GeneratorType) DescribeCluster(e *eks.Client, cluster string) (*eks.DescribeClusterOutput, error) {
-	return e.DescribeCluster(context.TODO(), &eks.DescribeClusterInput{Name: &cluster})
+	return e.DescribeCluster(g.Context, &eks.DescribeClusterInput{Name: &cluster})
 }
 
 // TestCluster is a tough function to test as it makes a call to Nodes().
@@ -64,7 +66,7 @@ func (g *GeneratorType) TestCluster(r *types.Cluster, tok token.Token) error {
 	if err != nil {
 		log.Fatalf("Error creating clientset: %v", err)
 	}
-	nodes, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	nodes, err := clientset.CoreV1().Nodes().List(g.Context, metav1.ListOptions{})
 	if err != nil {
 		log.Errorf("Error getting EKS nodes: %v", err)
 		return err

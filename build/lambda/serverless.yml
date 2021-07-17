@@ -1,0 +1,72 @@
+service: helm-janitor
+plugins:
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: go1.x
+  memorySize: 128
+  timeout: 30
+  region: ap-southeast-2
+  stage: ${opt:stage, 'development'}
+  deploymentBucket:
+    name: lendi-serverless-deployments-${self:provider.stage}
+  deploymentPrefix: helm-janitor
+  environment:
+    LOG_LEVEL: debug
+    ROLE_ARN: arn:aws:iam::#{AWS::AccountId}:role/${self:provider.stage}-k8s-janitor
+  stackTags:
+    stackjanitor: enabled
+  tracing:
+    lambda: true
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "xray:PutTraceSegments"
+            - "xray:PutTelemetryRecords"
+            - "xray:GetSamplingRules"
+            - "xray:GetSamplingTargets"
+            - "xray:GetSamplingStatisticSummaries"
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - sts:AssumeRole
+          Resource:
+            - arn:aws:iam::#{AWS::AccountId}:role/${self:provider.stage}-k8s-janitor
+resources:
+  Resources:
+    helmJanitorRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: ${self:provider.stage}-helm-janitor # map this to the EKS cluster role
+        Path: /
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                AWS:
+                - "#{AWS::AccountId}"
+              Action:
+                - sts:AssumeRole
+
+functions:
+  schedule:
+    handler: bin/schedule
+    events:
+      - schedule:
+          rate: ${opt:rate, 'rate(1000 minutes)'}
+          enabled: ${opt:schedule, true}
+  api:
+    handler: bin/api
+    events:
+      - http:
+          path: hello
+          method: post
+
+package:
+  patterns:
+    - '!**'
+    - 'bin/**'

@@ -2,6 +2,7 @@ package scan
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -37,6 +38,7 @@ type ScanClient struct {
 	ExcludeNamespaces string
 	Env               janitorconfig.EnvConfig
 	Dryrun            bool
+	Context           context.Context
 }
 
 func NewScanClient() *ScanClient {
@@ -45,7 +47,14 @@ func NewScanClient() *ScanClient {
 
 // Loose - experimental...
 func (sc *ScanClient) Makeekscfg() client.Generator {
-	return &client.GeneratorType{}
+	if sc.Context != nil {
+		return &client.GeneratorType{
+			Context: sc.Context,
+		}
+	}
+	return &client.GeneratorType{
+		Context: context.TODO(),
+	}
 }
 
 // Init - initialise!
@@ -64,7 +73,7 @@ func (sc *ScanClient) Config() janitorconfig.EnvConfig {
 // Makeawscfg - creates the cfg object
 func (sc *ScanClient) Makeawscfg() aws.Config {
 	cfg, err := config.LoadDefaultConfig(
-		context.TODO(),
+		sc.Context,
 		config.WithRegion(sc.Env.Region),
 	)
 	if err != nil {
@@ -95,6 +104,9 @@ func (sc *ScanClient) Getreleases(c client.EKSCluster, a *action.Configuration, 
 
 	iCli := list.ActionNewList(a) // super confusing? same obj in memory so...
 	iCli.Selector = sc.Env.JanitorLabel
+	if sc.Selector != "" {
+		iCli.Selector = fmt.Sprintf("%s,%s", sc.Env.JanitorLabel, sc.Selector)
+	}
 	rel, err := list.RunCommand()
 	if err != nil {
 		log.Panic(err)
