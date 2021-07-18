@@ -70,9 +70,9 @@ func HandleRequest() error {
 
 	log.Info(*result.AssumedRoleUser.Arn)
 
-	os.Setenv("AWS_ACCESS_KEY_ID", *result.Credentials.AccessKeyId)
-	os.Setenv("AWS_SECRET_ACCESS_KEY", *result.Credentials.SecretAccessKey)
-	os.Setenv("AWS_SESSION_TOKEN", *result.Credentials.SessionToken)
+	// os.Setenv("AWS_ACCESS_KEY_ID", *result.Credentials.AccessKeyId)
+	// os.Setenv("AWS_SECRET_ACCESS_KEY", *result.Credentials.SecretAccessKey)
+	// os.Setenv("AWS_SESSION_TOKEN", *result.Credentials.SessionToken)
 
 	scanner := scan.NewScanClient()
 	scanner.Dryrun = true

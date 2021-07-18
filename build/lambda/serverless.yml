@@ -51,6 +51,7 @@ resources:
                 - "#{AWS::AccountId}"
               Action:
                 - sts:AssumeRole
+        Policy: {} # not valid?
 
 functions:
   schedule:

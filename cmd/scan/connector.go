@@ -7,6 +7,8 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	janitorconfig "github.com/edify42/helm-janitor/internal/config"
 	client "github.com/edify42/helm-janitor/internal/eks"
 	internalhelm "github.com/edify42/helm-janitor/internal/helm"
@@ -80,6 +82,13 @@ func (sc *ScanClient) Makeawscfg() aws.Config {
 		// handle error :(
 		log.Panic("aws config management issue...")
 	}
+
+	if os.Getenv("ROLE_ARN") != "" {
+		// reference: https://stackoverflow.com/questions/67605787/how-do-i-use-aws-sts-assume-role-with-mfa-using-aws-sdk-go-v2
+		creds := stscreds.NewAssumeRoleProvider(sts.NewFromConfig(cfg), os.Getenv("ROLE_ARN"), func(o *stscreds.AssumeRoleOptions) {})
+		cfg.Credentials = aws.NewCredentialsCache(creds)
+	}
+
 	return cfg
 }
 

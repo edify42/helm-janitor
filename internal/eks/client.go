@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"io/ioutil"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eks"
@@ -87,7 +88,9 @@ func (g *GeneratorType) GenToken(cluster *string) (token.Token, error) {
 	}
 	opts := &token.GetTokenOptions{
 		// AssumeRoleARN: "arn:aws:iam::<account_id>:role/<role-name>", // Consider supporting this via config...
-		ClusterID: aws.ToString(cluster),
+		ClusterID:     aws.ToString(cluster),
+		Region:        "ap-southeast-2",
+		AssumeRoleARN: os.Getenv("ROLE_ARN"),
 	}
 	return gen.GetWithOptions(opts)
 }
