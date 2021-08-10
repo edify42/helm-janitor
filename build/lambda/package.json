@@ -5,8 +5,7 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "serverless": "^2.52.0",
-    "serverless-pseudo-parameters": "^2.6.0"
+    "serverless": "^2.53.1"
   },
   "scripts": {
     "package": "serverless package"

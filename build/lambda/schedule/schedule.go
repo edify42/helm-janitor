@@ -4,8 +4,6 @@ import (
 	"context"
 	"os"
 
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/edify42/helm-janitor/cmd/scan"
 	log "github.com/sirupsen/logrus"
 )
@@ -36,16 +34,16 @@ func init() {
 
 func HandleRequest() error {
 	ctx := context.Background()
-	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithRegion("ap-southeast-2"),
-		//config.WithClientLogMode(aws.LogSigning),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	roleARN := os.Getenv("ROLE_ARN")
-	sessionName := "sessionName"
-	stsClient := sts.NewFromConfig(cfg)
+	// cfg, err := config.LoadDefaultConfig(ctx,
+	// 	config.WithRegion("ap-southeast-2"),
+	// 	//config.WithClientLogMode(aws.LogSigning),
+	// )
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// roleARN := os.Getenv("ROLE_ARN")
+	// sessionName := "sessionName"
+	// stsClient := sts.NewFromConfig(cfg)
 	// provider := stscreds.NewAssumeRoleProvider(stsClient, roleARN)
 	// cfg.Credentials = aws.NewCredentialsCache(provider)
 	// // without the following, I'm getting an error message: api error SignatureDoesNotMatch: The request signature we calculated does not match the signature you provided.
@@ -58,17 +56,17 @@ func HandleRequest() error {
 	// log.Infof(creds.SecretAccessKey)
 	// log.Infof(creds.SessionToken)
 
-	input := &sts.AssumeRoleInput{
-		RoleArn:         &roleARN,
-		RoleSessionName: &sessionName,
-	}
+	// input := &sts.AssumeRoleInput{
+	// 	RoleArn:         &roleARN,
+	// 	RoleSessionName: &sessionName,
+	// }
 
-	result, err := stsClient.AssumeRole(ctx, input)
-	if err != nil {
-		log.Fatalf("Got an error assuming the role: %v", err)
-	}
+	// result, err := stsClient.AssumeRole(ctx, input)
+	// if err != nil {
+	// 	log.Fatalf("Got an error assuming the role: %v", err)
+	// }
 
-	log.Info(*result.AssumedRoleUser.Arn)
+	// log.Info(*result.AssumedRoleUser.Arn)
 
 	// os.Setenv("AWS_ACCESS_KEY_ID", *result.Credentials.AccessKeyId)
 	// os.Setenv("AWS_SECRET_ACCESS_KEY", *result.Credentials.SecretAccessKey)

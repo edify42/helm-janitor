@@ -2,7 +2,6 @@ package delete
 
 import (
 	"context"
-	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -83,7 +82,7 @@ func (c *Client) Deleterelease(eks client.EKSCluster, a *action.Configuration, r
 	settings.KubeAPIServer = eks.Endpoint
 	settings.KubeToken = eks.Token
 	settings.KubeCaFile = eks.CAFile
-	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, os.Getenv("HELM_DRIVER"), log.Infof); err != nil {
+	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, "secrets", log.Infof); err != nil {
 		log.Fatal(err)
 	}
 	run := del.ActionNewUninstall(a)

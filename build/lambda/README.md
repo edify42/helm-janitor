@@ -9,8 +9,17 @@ First cut of the schedule code will simply scan releases with the label
 `helm-janitor: true` and look for the TTL/expires value in the values file
 that was deployed with the release.
 
+## api
 
-## deploy
+Eventually we'd like an API gateway endpoint to expose the function for
+further integration points (e.g. slack webhook)
+
+## custom
+
+The function can also be manually invoked by say, another lambda to perform
+the janitor duties.
+
+## deployment to AWS
 
 STILL WIP - relying on Lendi specific tooling.
 

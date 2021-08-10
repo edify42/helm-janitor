@@ -1,12 +1,11 @@
 service: helm-janitor
-plugins:
-  - serverless-pseudo-parameters
+
 
 provider:
   name: aws
   runtime: go1.x
-  memorySize: 128
-  timeout: 30
+  memorySize: 256
+  timeout: 60
   region: ap-southeast-2
   stage: ${opt:stage, 'development'}
   deploymentBucket:
@@ -14,13 +13,14 @@ provider:
   deploymentPrefix: helm-janitor
   environment:
     LOG_LEVEL: debug
-    ROLE_ARN: arn:aws:iam::#{AWS::AccountId}:role/${self:provider.stage}-k8s-janitor
+    ROLE_ARN: arn:aws:iam::${aws:accountId}:role/${self:provider.stage}-k8s-janitor
   stackTags:
-    stackjanitor: enabled
+    stackjanitor: disabled
   tracing:
     lambda: true
   iam:
     role:
+      name: helm-janitor-latest
       statements:
         - Effect: "Allow"
           Action:
@@ -34,7 +34,7 @@ provider:
           Action:
             - sts:AssumeRole
           Resource:
-            - arn:aws:iam::#{AWS::AccountId}:role/${self:provider.stage}-k8s-janitor
+            - arn:aws:iam::${aws:accountId}:role/${self:provider.stage}-k8s-janitor
 resources:
   Resources:
     helmJanitorRole:
@@ -48,10 +48,10 @@ resources:
             - Effect: Allow
               Principal:
                 AWS:
-                - "#{AWS::AccountId}"
+                - "${aws:accountId}"
               Action:
                 - sts:AssumeRole
-        Policy: {} # not valid?
+        # Policy: {} # not valid?
 
 functions:
   schedule:
@@ -60,6 +60,8 @@ functions:
       - schedule:
           rate: ${opt:rate, 'rate(1000 minutes)'}
           enabled: ${opt:schedule, true}
+  custom:
+    handler: bin/custom
   api:
     handler: bin/api
     events:

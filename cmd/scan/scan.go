@@ -50,7 +50,7 @@ func RunV2(sr InputRun) {
 		if expired {
 			log.Infof("deleting release %s in namespace %s", release.Name, release.Namespace)
 			del := internalhelm.NewDelete()
-			sr.Deleterelease(actionConfig, release, del)
+			sr.Deleterelease(cluster, actionConfig, release, del)
 		}
 	}
 

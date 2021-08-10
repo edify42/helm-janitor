@@ -132,7 +132,6 @@ type mockInput struct{}
 type mockDelete struct{}
 
 func (m *mockInput) Init() {
-	return
 }
 
 func (m *mockInput) Config() janitorconfig.EnvConfig {
@@ -141,7 +140,7 @@ func (m *mockInput) Config() janitorconfig.EnvConfig {
 	}
 }
 
-func (m *mockInput) Deleterelease(a *action.Configuration, rel *release.Release, d internalhelm.HelmDelete) error {
+func (m *mockInput) Deleterelease(e client.EKSCluster, a *action.Configuration, rel *release.Release, d internalhelm.HelmDelete) error {
 	return nil
 }
 

@@ -28,7 +28,7 @@ type InputRun interface {
 	Getekscluster(aws.Config, client.Generator) client.EKSCluster
 	Config() janitorconfig.EnvConfig
 	Getreleases(client.EKSCluster, *action.Configuration, internalhelm.HelmList) []*release.Release
-	Deleterelease(*action.Configuration, *release.Release, internalhelm.HelmDelete) error
+	Deleterelease(client.EKSCluster, *action.Configuration, *release.Release, internalhelm.HelmDelete) error
 	Makeekscfg() client.Generator // Experimental. Using this to mock...
 }
 
@@ -101,18 +101,25 @@ func (sc *ScanClient) Getekscluster(c aws.Config, g client.Generator) client.EKS
 
 // Getreleases will return the array of helm releases
 func (sc *ScanClient) Getreleases(c client.EKSCluster, a *action.Configuration, list internalhelm.HelmList) []*release.Release {
-	releaseNamespace := sc.Namespace // TODO: use the parameters to figure out the namespaces to search.
-	log.Debugf("Getting releases from namespace: %s", releaseNamespace)
+	releaseNamespace := sc.Namespace
+	if releaseNamespace != "" {
+		log.Debugf("Getting releases from namespace: %s", releaseNamespace)
+	} else {
+		log.Debugf("No namespace defined - AllNamespaces is %v", sc.AllNamespaces)
+	}
+
 	settings := cli.New()
 	settings.KubeAPIServer = c.Endpoint
 	settings.KubeToken = c.Token
 	settings.KubeCaFile = c.CAFile
-	if err := a.Init(settings.RESTClientGetter(), releaseNamespace, os.Getenv("HELM_DRIVER"), log.Infof); err != nil {
+	if err := a.Init(settings.RESTClientGetter(), releaseNamespace, "secrets", log.Infof); err != nil {
 		panic(err)
 	}
 
 	iCli := list.ActionNewList(a) // super confusing? same obj in memory so...
 	iCli.Selector = sc.Env.JanitorLabel
+	iCli.AllNamespaces = sc.AllNamespaces
+
 	if sc.Selector != "" {
 		iCli.Selector = fmt.Sprintf("%s,%s", sc.Env.JanitorLabel, sc.Selector)
 	}
@@ -127,13 +134,19 @@ func (sc *ScanClient) Getreleases(c client.EKSCluster, a *action.Configuration, 
 }
 
 // Deleterelease will try and delete a release
-func (sc *ScanClient) Deleterelease(a *action.Configuration, rel *release.Release, del internalhelm.HelmDelete) error {
+func (sc *ScanClient) Deleterelease(eks client.EKSCluster, a *action.Configuration, rel *release.Release, del internalhelm.HelmDelete) error {
 	settings := cli.New()
-	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, os.Getenv("HELM_DRIVER"), log.Infof); err != nil {
+	settings.KubeAPIServer = eks.Endpoint
+	settings.KubeToken = eks.Token
+	settings.KubeCaFile = eks.CAFile
+	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, "secrets", log.Infof); err != nil {
 		log.Fatal(err)
 	}
 	run := del.ActionNewUninstall(a)
-	run.DryRun = sc.Dryrun
+	if sc.Dryrun {
+		log.Debug("dry run mode enabled")
+		run.DryRun = sc.Dryrun
+	}
 	out, err := del.RunCommand(rel.Name)
 	if err != nil {
 		log.Fatal(err)

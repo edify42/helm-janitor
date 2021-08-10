@@ -21,12 +21,11 @@ func RunDeleteSet(sr scan.InputRun) {
 	cfg := sr.Makeawscfg()
 	cluster := sr.Getekscluster(cfg, b)
 	if !mycfg.DebugFlag {
-		log.Info("should clean " + cluster.CAFile)
+		log.Info("should remove the CA file " + cluster.CAFile)
 		defer os.Remove(cluster.CAFile)
 	} else {
-		log.Info("no clean")
+		log.Info("DEBUG flag set - won't remove the cluster CA file")
 	}
-	defer os.Remove(cluster.CAFile)
 
 	actionConfig := new(action.Configuration)
 
@@ -41,7 +40,7 @@ func RunDeleteSet(sr scan.InputRun) {
 		})
 		log.Infof("deleting release %s in namespace %s", release.Name, release.Namespace)
 		del := internalhelm.NewDelete()
-		sr.Deleterelease(actionConfig, release, del)
+		sr.Deleterelease(cluster, actionConfig, release, del)
 	}
 
 	// Finally throw the last error!.
