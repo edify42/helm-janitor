@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	janitorconfig "github.com/edify42/helm-janitor/internal/config"
+	"github.com/edify42/helm-janitor/internal/eks"
 	client "github.com/edify42/helm-janitor/internal/eks"
 	internalhelm "github.com/edify42/helm-janitor/internal/helm"
 	"helm.sh/helm/v3/pkg/action"
@@ -128,9 +129,9 @@ func TestCheckReleaseExpired(t *testing.T) {
 // Bunch of test function to mock RunV2
 
 type mockInput struct{}
+type mockDelete struct{}
 
 func (m *mockInput) Init() {
-	return
 }
 
 func (m *mockInput) Config() janitorconfig.EnvConfig {
@@ -139,11 +140,11 @@ func (m *mockInput) Config() janitorconfig.EnvConfig {
 	}
 }
 
-func (m *mockInput) Deleterelease(a *action.Configuration, rel *release.Release) error {
+func (m *mockInput) Deleterelease(e client.EKSCluster, a *action.Configuration, rel *release.Release, d internalhelm.HelmDelete) error {
 	return nil
 }
 
-func (m *mockInput) Getekscluster(a aws.Config) client.EKSCluster {
+func (m *mockInput) Getekscluster(a aws.Config, e eks.Generator) client.EKSCluster {
 	return client.EKSCluster{
 		Name:     "local",
 		Endpoint: "localhost",
@@ -160,11 +161,23 @@ func (m *mockInput) Getreleases(c client.EKSCluster, a *action.Configuration, i 
 	}}
 }
 
+func (m *mockInput) Makeekscfg() eks.Generator {
+	return &eks.GeneratorType{}
+}
+
 func (m *mockInput) Makeawscfg() aws.Config {
 	return aws.Config{
 		Region: "ap-southeast-2",
 	}
 }
+
+// func (d *mockDelete) RunCommand(s string) (*release.UninstallReleaseResponse, error) {
+// 	return &release.UninstallReleaseResponse{Info: "yo"}, nil
+// }
+
+// func (d *mockDelete) ActionNewUninstall(c *action.Configuration) *action.Uninstall {
+// 	return &action.Uninstall{}
+// }
 
 func TestRunV2(t *testing.T) {
 	type args struct {

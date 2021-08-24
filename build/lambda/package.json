@@ -1,0 +1,13 @@
+{
+  "name": "helm-janitor-lambda",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "serverless": "^2.53.1"
+  },
+  "scripts": {
+    "package": "serverless package"
+  }
+}

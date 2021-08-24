@@ -18,9 +18,11 @@ import (
 // main struct for this file.
 
 func RunV2(sr InputRun) {
+
+	b := sr.Makeekscfg()
 	mycfg := sr.Config()
 	cfg := sr.Makeawscfg()
-	cluster := sr.Getekscluster(cfg)
+	cluster := sr.Getekscluster(cfg, b)
 	if !mycfg.DebugFlag {
 		log.Info("should clean " + cluster.CAFile)
 		defer os.Remove(cluster.CAFile)
@@ -47,7 +49,8 @@ func RunV2(sr InputRun) {
 		}
 		if expired {
 			log.Infof("deleting release %s in namespace %s", release.Name, release.Namespace)
-			sr.Deleterelease(actionConfig, release)
+			del := internalhelm.NewDelete()
+			sr.Deleterelease(cluster, actionConfig, release, del)
 		}
 	}
 

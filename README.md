@@ -83,14 +83,21 @@ AWS environment.
 Need an IAM role that maps to a k8s RBAC cluster role which has enough
 permissions to clean up the helm release.
 
+Use the `ROLE_ARN` environment variable if the lambda needs to assume a role to
+access the k8s cluster.
+
+We use map the AWS IAM role to a cluster user which has the sufficient RBAC
+permission to remove a release.
+
 ### k8s container
 
-Other k8s native option is to run this as a k8s cronjob that can remove the helm release.
+Other k8s native option is to run this as a k8s cronjob that can remove the
+helm release.
 
 #### permission requirements
 
 Needs an RBAC cluster role binding which has the right amount of cluster
-permissions to remove a helm release. 
+permissions to remove a helm release.
 
 ## contributing
 

@@ -1,0 +1,269 @@
+{
+    "actor": {
+        "account_id": "aoeu",
+        "display_name": "Tedmus Kimmis",
+        "links": {
+            "avatar": {
+                "href": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/EK-3.png"
+            },
+            "html": {
+                "href": "https://bitbucket.org/yolo/be/cool"
+            },
+            "self": {
+                "href": "https://api.bitbucket.org/2.0/users/yello/be/nice"
+            }
+        },
+        "nickname": "tedmus.kimmis",
+        "type": "user",
+        "uuid": "{uuid}"
+    },
+    "pullrequest": {
+        "author": {
+            "account_id": "1",
+            "display_name": "tedmus kimmis",
+            "links": {
+                "avatar": {
+                    "href": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/EK-3.png"
+                },
+                "html": {
+                    "href": "https://bitbucket.org/%!B(MISSING)7aoebb-o22eb13d5%!D(MISSING)/"
+                },
+                "self": {
+                    "href": "https://api.bitbucket.org/2.0/users/%!B(MISSING)7aoebb-o22eb13d5%!D(MISSING)"
+                }
+            },
+            "nickname": "tedmus.kimmis",
+            "type": "user",
+            "uuid": "{7aoebb-o22eb13d5}"
+        },
+        "close_source_branch": false,
+        "closed_by": {
+            "account_id": "1",
+            "display_name": "tedmus kimmis",
+            "links": {
+                "avatar": {
+                    "href": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/EK-3.png"
+                },
+                "html": {
+                    "href": "https://bitbucket.org/%!B(MISSING)7aoebb-o22eb13d5%!D(MISSING)/"
+                },
+                "self": {
+                    "href": "https://api.bitbucket.org/2.0/users/%!B(MISSING)7aoebb-o22eb13d5%!D(MISSING)"
+                }
+            },
+            "nickname": "tedmus.kimmis",
+            "type": "user",
+            "uuid": "{7aoebb-o22eb13d5}"
+        },
+        "comment_count": 0,
+        "created_on": "2021-08-09T00:19:26.449787+00:00",
+        "description": "Signed-off-by: tedmus kimmis tedmus.kimmis@proton.com",
+        "destination": {
+            "branch": {
+                "name": "master"
+            },
+            "commit": {
+                "hash": "e617b2484939",
+                "links": {
+                    "html": {
+                        "href": "https://bitbucket.org/lendi-opensource/router/commits/e617b2484939"
+                    },
+                    "self": {
+                        "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/commit/e617b2484939"
+                    }
+                },
+                "type": "commit"
+            },
+            "repository": {
+                "full_name": "lendi-opensource/router",
+                "links": {
+                    "avatar": {
+                        "href": "https://bytebucket.org/ravatar/%!B(MISSING)aab85b0b-b584-4076-8902-d0c8a6102c97%!D(MISSING)?ts=2114617"
+                    },
+                    "html": {
+                        "href": "https://bitbucket.org/lendi-opensource/router"
+                    },
+                    "self": {
+                        "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router"
+                    }
+                },
+                "name": "router",
+                "type": "repository",
+                "uuid": "{aab85b0b-b584-4076-8902-d0c8a6102c97}"
+            }
+        },
+        "id": 494,
+        "links": {
+            "activity": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/pullrequests/494/activity"
+            },
+            "approve": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/pullrequests/494/approve"
+            },
+            "comments": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/pullrequests/494/comments"
+            },
+            "commits": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/pullrequests/494/commits"
+            },
+            "decline": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/pullrequests/494/decline"
+            },
+            "diff": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/diff/lendi-opensource/router:3aa991bb2a3e%!D(MISSING)e617b2484939?from_pullrequest_id=494"
+            },
+            "diffstat": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/diffstat/lendi-opensource/router:3aa991bb2a3e%!D(MISSING)e617b2484939?from_pullrequest_id=494"
+            },
+            "html": {
+                "href": "https://bitbucket.org/lendi-opensource/router/pull-requests/494"
+            },
+            "merge": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/pullrequests/494/merge"
+            },
+            "request-changes": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/pullrequests/494/request-changes"
+            },
+            "self": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/pullrequests/494"
+            },
+            "statuses": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/pullrequests/494/statuses"
+            }
+        },
+        "merge_commit": null,
+        "participants": [],
+        "reason": "",
+        "rendered": {
+            "description": {
+                "html": "<p>Signed-off-by: tedmus kimmis tedmus.kimmis@proton.com</p>",
+                "markup": "markdown",
+                "raw": "Signed-off-by: tedmus kimmis tedmus.kimmis@proton.com",
+                "type": "rendered"
+            },
+            "title": {
+                "html": "<p>WIP test</p>",
+                "markup": "markdown",
+                "raw": "WIP test",
+                "type": "rendered"
+            }
+        },
+        "reviewers": [],
+        "source": {
+            "branch": {
+                "name": "fake-branch"
+            },
+            "commit": {
+                "hash": "3aa991bb2a3e",
+                "links": {
+                    "html": {
+                        "href": "https://bitbucket.org/lendi-opensource/router/commits/3aa991bb2a3e"
+                    },
+                    "self": {
+                        "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router/commit/3aa991bb2a3e"
+                    }
+                },
+                "type": "commit"
+            },
+            "repository": {
+                "full_name": "lendi-opensource/router",
+                "links": {
+                    "avatar": {
+                        "href": "https://bytebucket.org/ravatar/%!B(MISSING)aab85b0b-b584-4076-8902-d0c8a6102c97%!D(MISSING)?ts=2114617"
+                    },
+                    "html": {
+                        "href": "https://bitbucket.org/lendi-opensource/router"
+                    },
+                    "self": {
+                        "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router"
+                    }
+                },
+                "name": "router",
+                "type": "repository",
+                "uuid": "{a2-b584-4076-8902-d0c8a6102c97}"
+            }
+        },
+        "state": "DECLINED",
+        "summary": {
+            "html": "<p>Signed-off-by: tedmus kimmis tedmus.kimmis@proton.com</p>",
+            "markup": "markdown",
+            "raw": "Signed-off-by: tedmus kimmis tedmus.kimmis@proton.com",
+            "type": "rendered"
+        },
+        "task_count": 0,
+        "title": "WIP test",
+        "type": "pullrequest",
+        "updated_on": "2021-08-09T00:19:42.155287+00:00"
+    },
+    "repository": {
+        "full_name": "lendi-opensource/router",
+        "is_private": true,
+        "links": {
+            "avatar": {
+                "href": "https://bytebucket.org/ravatar/%!B(MISSING)aab85b0b-b584-4076-8902-d0c8a6102c97%!D(MISSING)?ts=2114617"
+            },
+            "html": {
+                "href": "https://bitbucket.org/lendi-opensource/router"
+            },
+            "self": {
+                "href": "https://api.bitbucket.org/2.0/repositories/lendi-opensource/router"
+            }
+        },
+        "name": "router",
+        "owner": {
+            "display_name": "Lendi",
+            "links": {
+                "avatar": {
+                    "href": "https://bitbucket.org/account/lendi-opensource/avatar/"
+                },
+                "html": {
+                    "href": "https://bitbucket.org/%!B(MISSING)211000b1-f6b8-4a2b-a714-873aa2d1de40%!D(MISSING)/"
+                },
+                "self": {
+                    "href": "https://api.bitbucket.org/2.0/teams/%!B(MISSING)211000b1-f6b8-4a2b-a714-873aa2d1de40%!D(MISSING)"
+                }
+            },
+            "type": "team",
+            "username": "lendi-opensource",
+            "uuid": "{a1-f6b8-4a2b-a714-873aa2d1de40}"
+        },
+        "project": {
+            "key": "PLATFORM",
+            "links": {
+                "avatar": {
+                    "href": "https://bitbucket.org/account/user/lendi-opensource/projects/PLATFORM/avatar/32?ts=1539311794"
+                },
+                "html": {
+                    "href": "https://bitbucket.org/lendi-opensource/workspace/projects/PLATFORM"
+                },
+                "self": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/lendi-opensource/projects/PLATFORM"
+                }
+            },
+            "name": "platform",
+            "type": "project",
+            "uuid": "{a1-c608-4ead-8fc7-e694d6c10662}"
+        },
+        "scm": "git",
+        "type": "repository",
+        "uuid": "{a2-b584-4076-8902-d0c8a6102c97}",
+        "website": "",
+        "workspace": {
+            "links": {
+                "avatar": {
+                    "href": "https://bitbucket.org/workspaces/lendi-opensource/avatar/?ts=1615242516"
+                },
+                "html": {
+                    "href": "https://bitbucket.org/lendi-opensource/"
+                },
+                "self": {
+                    "href": "https://api.bitbucket.org/2.0/workspaces/lendi-opensource"
+                }
+            },
+            "name": "Lendi",
+            "slug": "lendi-opensource",
+            "type": "workspace",
+            "uuid": "{a2-f6b8-4a2b-a714-873aa2d1de40}"
+        }
+    }
+}
