@@ -1,5 +1,7 @@
 # helm-janitor
 
+![Helm+Janitor](art/helm+janitor.png)
+
 _helm-janitor_ is an API interface to clean up releases in your k8s cluster.
 
 It can also scans for [helm3](https://helm.sh/blog/helm-3-released/) releases
