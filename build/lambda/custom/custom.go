@@ -93,7 +93,7 @@ func main() {
 	if os.Getenv("DEBUG") == "true" {
 		ctx := context.Background()
 		HandleRequest(ctx, EventBody{
-			Name: "BRANCH=DE-3937-W,REPOSITORY=decision-engine,helm-janitor=true",
+			Name: "BRANCH=lazy-migration,REPOSITORY=funding-position-service,helm-janitor=true",
 			Time: Test{
 				Timmy: "now",
 			},
