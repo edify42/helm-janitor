@@ -20,7 +20,7 @@ func RunV2(sr InputRun) {
 		log.Info("should clean " + cluster.CAFile)
 		defer os.Remove(cluster.CAFile)
 	} else {
-		log.Info("no clean")
+		log.Info("DEBUG flag set - won't actually delete anything.")
 	}
 
 	actionConfig := new(action.Configuration)

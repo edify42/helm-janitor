@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/edify42/helm-janitor/cmd/scan"
+	"github.com/edify42/helm-janitor/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -32,49 +33,16 @@ func init() {
 	}
 }
 
+// HandleRequest runs the scan package code to look for old releases and deletes them
 func HandleRequest() error {
 	ctx := context.Background()
-	// cfg, err := config.LoadDefaultConfig(ctx,
-	// 	config.WithRegion("ap-southeast-2"),
-	// 	//config.WithClientLogMode(aws.LogSigning),
-	// )
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// roleARN := os.Getenv("ROLE_ARN")
-	// sessionName := "sessionName"
-	// stsClient := sts.NewFromConfig(cfg)
-	// provider := stscreds.NewAssumeRoleProvider(stsClient, roleARN)
-	// cfg.Credentials = aws.NewCredentialsCache(provider)
-	// // without the following, I'm getting an error message: api error SignatureDoesNotMatch: The request signature we calculated does not match the signature you provided.
-	// creds, err := cfg.Credentials.Retrieve(context.Background())
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// log.Infof(creds.AccessKeyID)
-	// log.Infof(creds.SecretAccessKey)
-	// log.Infof(creds.SessionToken)
-
-	// input := &sts.AssumeRoleInput{
-	// 	RoleArn:         &roleARN,
-	// 	RoleSessionName: &sessionName,
-	// }
-
-	// result, err := stsClient.AssumeRole(ctx, input)
-	// if err != nil {
-	// 	log.Fatalf("Got an error assuming the role: %v", err)
-	// }
-
-	// log.Info(*result.AssumedRoleUser.Arn)
-
-	// os.Setenv("AWS_ACCESS_KEY_ID", *result.Credentials.AccessKeyId)
-	// os.Setenv("AWS_SECRET_ACCESS_KEY", *result.Credentials.SecretAccessKey)
-	// os.Setenv("AWS_SESSION_TOKEN", *result.Credentials.SessionToken)
 
 	scanner := scan.NewScanClient()
-	scanner.Dryrun = true
-	scanner.AllNamespaces = true
+	scanner.Dryrun = config.GetenvWithDefaultBool("DRY_RUN", false)
+	scanner.AllNamespaces = config.GetenvWithDefaultBool("ALL_NAMESPACES", true)
+	scanner.Namespace = config.GetenvWithDefault("NAMESPACE", "")
+	scanner.IncludeNamespaces = config.GetenvWithDefault("INCLUDE_NAMESPACES", "")
+	scanner.ExcludeNamespaces = config.GetenvWithDefault("EXCLUDE_NAMESPACES", "")
 	scanner.Context = ctx
 	scanner.Init()
 	log.Info("starting...")
@@ -84,9 +52,7 @@ func HandleRequest() error {
 
 func main() {
 	log.Infof("starting")
-	if os.Getenv("DEBUG") == "true" {
-		HandleRequest()
-	}
+	HandleRequest()
 	// lambda.Start(HandleRequest)
 	log.Infof("finished")
 }
