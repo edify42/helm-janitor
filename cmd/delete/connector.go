@@ -2,6 +2,7 @@ package delete
 
 import (
 	"context"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -78,6 +79,7 @@ func (c *Client) Getekscluster(aws aws.Config, g client.Generator) client.EKSClu
 
 // Deleterelease will try and delete a release -> Need to reconfigure...
 func (c *Client) Deleterelease(eks client.EKSCluster, a *action.Configuration, rel *release.Release, del internalhelm.HelmDelete) error {
+	os.Setenv("HELM_NAMESPACE", rel.Namespace) // holy hack batman. why don't they expose this at the API level?
 	settings := cli.New()
 	settings.KubeAPIServer = eks.Endpoint
 	settings.KubeToken = eks.Token
