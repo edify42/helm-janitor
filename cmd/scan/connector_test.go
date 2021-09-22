@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	janitorconfig "github.com/edify42/helm-janitor/internal/config"
-	client "github.com/edify42/helm-janitor/internal/eks"
-	internalhelm "github.com/edify42/helm-janitor/internal/helm"
+	janitorconfig "github.com/lendi-au/helm-janitor/internal/config"
+	client "github.com/lendi-au/helm-janitor/internal/eks"
+	internalhelm "github.com/lendi-au/helm-janitor/internal/helm"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
 )

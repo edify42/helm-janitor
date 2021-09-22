@@ -5,15 +5,13 @@ package delete
 import (
 	"os"
 
-	"github.com/edify42/helm-janitor/cmd/scan"
-	internalhelm "github.com/edify42/helm-janitor/internal/helm"
+	"github.com/lendi-au/helm-janitor/cmd/scan"
+	internalhelm "github.com/lendi-au/helm-janitor/internal/helm"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
-// main struct for this file.
-
+// RunDeleteSet will look for releases and purge them.
 func RunDeleteSet(sr scan.InputRun) {
 
 	b := sr.Makeekscfg()

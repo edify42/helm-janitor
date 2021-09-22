@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/edify42/helm-janitor/cmd/delete"
-	"github.com/edify42/helm-janitor/cmd/scan"
-	"github.com/edify42/helm-janitor/internal/config"
+	"github.com/lendi-au/helm-janitor/cmd/delete"
+	"github.com/lendi-au/helm-janitor/cmd/scan"
+	"github.com/lendi-au/helm-janitor/internal/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

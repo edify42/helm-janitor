@@ -3,7 +3,7 @@ package eks
 import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eks"
-	janitorconfig "github.com/edify42/helm-janitor/internal/config"
+	janitorconfig "github.com/lendi-au/helm-janitor/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 

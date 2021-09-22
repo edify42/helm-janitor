@@ -9,9 +9,9 @@ import (
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/release"
 
-	janitorconfig "github.com/edify42/helm-janitor/internal/config"
-	client "github.com/edify42/helm-janitor/internal/eks"
-	internalhelm "github.com/edify42/helm-janitor/internal/helm"
+	janitorconfig "github.com/lendi-au/helm-janitor/internal/config"
+	client "github.com/lendi-au/helm-janitor/internal/eks"
+	internalhelm "github.com/lendi-au/helm-janitor/internal/helm"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -44,23 +44,23 @@ func (c *Client) Config() *Client {
 }
 
 // Init it!
-func (d *Client) Init() {
+func (c *Client) Init() {
 	test := janitorconfig.EnvConfig{}
 	test.Init() // get the default values...again.
-	d.Env = test
-	log.Infof("Delete client initialised with values %v", d)
+	c.Env = test
+	log.Infof("Delete client initialised with values %v", c)
 }
 
-// Loose - experimental...
-func (d *Client) Makeekscfg() client.Generator {
+// Makeekscfg returns an empty EKS config
+func (c *Client) Makeekscfg() client.Generator {
 	return &client.GeneratorType{}
 }
 
 // Makeawscfg - creates the cfg object
-func (d *Client) Makeawscfg() aws.Config {
+func (c *Client) Makeawscfg() aws.Config {
 	cfg, err := config.LoadDefaultConfig(
 		context.TODO(),
-		config.WithRegion(d.Env.Region),
+		config.WithRegion(c.Env.Region),
 	)
 	if err != nil {
 		// handle error :(
@@ -70,9 +70,9 @@ func (d *Client) Makeawscfg() aws.Config {
 }
 
 // Getekscluster - Return the cluster, endpoints and auth token!
-func (d *Client) Getekscluster(c aws.Config, g client.Generator) client.EKSCluster {
-	a := client.AwsConfig{J: d.Env}
-	cluster := a.Init(c, g)
+func (c *Client) Getekscluster(aws aws.Config, g client.Generator) client.EKSCluster {
+	a := client.AwsConfig{J: c.Env}
+	cluster := a.Init(aws, g)
 	return cluster
 }
 

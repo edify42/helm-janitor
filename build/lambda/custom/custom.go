@@ -7,10 +7,10 @@ import (
 	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/edify42/helm-janitor/cmd/delete"
-	"github.com/edify42/helm-janitor/cmd/scan"
-	"github.com/edify42/helm-janitor/internal/config"
-	events "github.com/edify42/helm-janitor/pkg/lambda"
+	"github.com/lendi-au/helm-janitor/cmd/delete"
+	"github.com/lendi-au/helm-janitor/cmd/scan"
+	"github.com/lendi-au/helm-janitor/internal/config"
+	events "github.com/lendi-au/helm-janitor/pkg/lambda"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -93,7 +93,7 @@ func main() {
 	if os.Getenv("DEBUG") == "true" {
 		ctx := context.Background()
 		HandleRequest(ctx, EventBody{
-			Name: "BRANCH=lazy-migration,REPOSITORY=funding-position-service,helm-janitor=true",
+			Name: "BRANCH=janitor-testing,REPOSITORY=router,helm-janitor=true",
 			Time: Test{
 				Timmy: "now",
 			},

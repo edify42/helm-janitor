@@ -9,9 +9,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	janitorconfig "github.com/edify42/helm-janitor/internal/config"
-	client "github.com/edify42/helm-janitor/internal/eks"
-	internalhelm "github.com/edify42/helm-janitor/internal/helm"
+	janitorconfig "github.com/lendi-au/helm-janitor/internal/config"
+	client "github.com/lendi-au/helm-janitor/internal/eks"
+	internalhelm "github.com/lendi-au/helm-janitor/internal/helm"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
@@ -135,6 +135,7 @@ func (sc *ScanClient) Getreleases(c client.EKSCluster, a *action.Configuration, 
 
 // Deleterelease will try and delete a release
 func (sc *ScanClient) Deleterelease(eks client.EKSCluster, a *action.Configuration, rel *release.Release, del internalhelm.HelmDelete) error {
+	os.Setenv("HELM_NAMESPACE", rel.Namespace) // holy hack batman. why don't they expose this at the API level?
 	settings := cli.New()
 	settings.KubeAPIServer = eks.Endpoint
 	settings.KubeToken = eks.Token

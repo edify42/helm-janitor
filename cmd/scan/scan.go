@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
-	janitorconfig "github.com/edify42/helm-janitor/internal/config"
-	internalhelm "github.com/edify42/helm-janitor/internal/helm"
-	"github.com/edify42/helm-janitor/pkg/utils"
+	janitorconfig "github.com/lendi-au/helm-janitor/internal/config"
+	internalhelm "github.com/lendi-au/helm-janitor/internal/helm"
+	"github.com/lendi-au/helm-janitor/pkg/utils"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/action"

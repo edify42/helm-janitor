@@ -13,14 +13,13 @@ provider:
   deploymentPrefix: helm-janitor
   environment:
     LOG_LEVEL: debug
-    ROLE_ARN: arn:aws:iam::${aws:accountId}:role/${self:provider.stage}-k8s-janitor
   stackTags:
     stackjanitor: disabled
   tracing:
     lambda: true
   iam:
     role:
-      name: helm-janitor-latest
+      name: ${self:provider.stage}-helm-janitor
       statements:
         - Effect: "Allow"
           Action:
@@ -31,27 +30,9 @@ provider:
             - "xray:GetSamplingStatisticSummaries"
           Resource: "*"
         - Effect: Allow
+          Resource: "*"
           Action:
-            - sts:AssumeRole
-          Resource:
-            - arn:aws:iam::${aws:accountId}:role/${self:provider.stage}-k8s-janitor
-resources:
-  Resources:
-    helmJanitorRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: ${self:provider.stage}-helm-janitor # map this to the EKS cluster role
-        Path: /
-        AssumeRolePolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Principal:
-                AWS:
-                - "${aws:accountId}"
-              Action:
-                - sts:AssumeRole
-        # Policy: {} # not valid?
+            - eks:DescribeCluster
 
 functions:
   schedule:

@@ -3,7 +3,7 @@ package delete
 import (
 	"os"
 
-	internalhelm "github.com/edify42/helm-janitor/internal/helm"
+	internalhelm "github.com/lendi-au/helm-janitor/internal/helm"
 	log "github.com/sirupsen/logrus"
 
 	"helm.sh/helm/v3/pkg/action"

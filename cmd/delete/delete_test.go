@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/edify42/helm-janitor/internal/eks"
-	client "github.com/edify42/helm-janitor/internal/eks"
-	internalhelm "github.com/edify42/helm-janitor/internal/helm"
+	"github.com/lendi-au/helm-janitor/internal/eks"
+	client "github.com/lendi-au/helm-janitor/internal/eks"
+	internalhelm "github.com/lendi-au/helm-janitor/internal/helm"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
 )

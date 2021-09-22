@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 	"github.com/aws/aws-sdk-go-v2/service/eks/types"
-	janitorconfig "github.com/edify42/helm-janitor/internal/config"
+	janitorconfig "github.com/lendi-au/helm-janitor/internal/config"
 	"sigs.k8s.io/aws-iam-authenticator/pkg/token"
 )
 
