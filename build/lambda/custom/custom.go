@@ -10,6 +10,7 @@ import (
 	"github.com/lendi-au/helm-janitor/cmd/delete"
 	"github.com/lendi-au/helm-janitor/cmd/scan"
 	"github.com/lendi-au/helm-janitor/internal/config"
+	"github.com/lendi-au/helm-janitor/internal/format"
 	events "github.com/lendi-au/helm-janitor/pkg/lambda"
 	log "github.com/sirupsen/logrus"
 )
@@ -64,18 +65,21 @@ func HandleRequest(ctx context.Context, event interface{}) error {
 		scanner.Selector = event.Name
 	case events.GithubWebhookEvent:
 		log.Debugf("my action is a %v with pr %v and repo %v", event.Action, event.PullRequest, event.Repository)
-		a := fmt.Sprintf("BRANCH=%s,REPOSITORY=%s", event.PullRequest.State, event.PullRequest.Head.Repository.Name)
-		scanner.Selector = a
+		a := validBranchName(event.PullRequest.State)
+		b := fmt.Sprintf("BRANCH=%s,REPOSITORY=%s", a, event.PullRequest.Head.Repository.Name)
+		scanner.Selector = b
 	case events.BitbucketWebhookEvent:
 		log.Debugf("my pr %v on the repo %v", event.PullRequest, event.Repository)
-		a := fmt.Sprintf("BRANCH=%s,REPOSITORY=%s", event.PullRequest.Source.Branch.Name, event.Repository.Name)
-		scanner.Selector = a
+		a := validBranchName(event.PullRequest.Source.Branch.Name)
+		b := fmt.Sprintf("BRANCH=%s,REPOSITORY=%s", a, event.Repository.Name)
+		scanner.Selector = b
 	default:
 		a := new(events.BitbucketWebhookEvent)
 		_ = json.Unmarshal(test, a)
-		log.Infof("tried: %s on branch %s", a.Repository.Name, a.PullRequest.Source.Branch.Name)
-		b := fmt.Sprintf("BRANCH=%s,REPOSITORY=%s", a.PullRequest.Source.Branch.Name, a.Repository.Name)
-		scanner.Selector = b
+		b := validBranchName(a.PullRequest.Source.Branch.Name)
+		log.Infof("tried: %s on branch %s", a.Repository.Name, b)
+		c := fmt.Sprintf("BRANCH=%s,REPOSITORY=%s", b, a.Repository.Name)
+		scanner.Selector = c
 	}
 	scanner.Dryrun = config.GetenvWithDefaultBool("DRY_RUN", false)
 	scanner.AllNamespaces = config.GetenvWithDefaultBool("ALL_NAMESPACES", true)
@@ -92,8 +96,10 @@ func main() {
 	log.Infof("starting")
 	if os.Getenv("DEBUG") == "true" {
 		ctx := context.Background()
+		a := validBranchName("feature/DE-4258-define-coversheet-view-model-and-conversion-for-se-incomes")
+		b := "decision-engine-team"
 		HandleRequest(ctx, EventBody{
-			Name: "BRANCH=janitor-testing,REPOSITORY=router,helm-janitor=true",
+			Name: fmt.Sprintf("BRANCH=%s,REPOSITORY=%s,helm-janitor=true", a, b),
 			Time: Test{
 				Timmy: "now",
 			},
@@ -102,4 +108,9 @@ func main() {
 		lambda.Start(HandleRequest)
 	}
 	log.Infof("finished")
+}
+
+func validBranchName(branch string) string {
+	a := format.FormatBranch(branch)
+	return format.ShortBranchName(a)
 }
