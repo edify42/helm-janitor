@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -47,7 +49,16 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		log.Info("GET yo")
 	case "POST":
-		log.Debug("Post yo")
+		log.Debugf("Post yo")
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Printf("Error reading body: %v", err)
+			http.Error(w, "can't read body", http.StatusBadRequest)
+			return
+		}
+		fmt.Print(string(body[:]))
+		test, _ := json.Marshal(string(body[:]))
+		log.Debugf("body was: %v", test)
 	}
 }
 
