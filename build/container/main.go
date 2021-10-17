@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/lendi-au/helm-janitor/cmd/scan"
+	"github.com/lendi-au/helm-janitor/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -31,12 +33,21 @@ func init() {
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("X-Access-Token")
-	if token == "magic" {
+	AUTH_TOKEN := config.GetenvWithDefault("HTTP_AUTH_TOKEN", "magic")
+	scanner := scan.NewScanClient()
+	if token == AUTH_TOKEN {
 		fmt.Fprintf(w, "You have some magic in you\n")
 		log.Println("Allowed an access attempt")
 	} else {
 		http.Error(w, "You don't have enough magic in you", http.StatusForbidden)
 		log.Println("Denied an access attempt")
+	}
+	scanner.Dryrun = config.GetenvWithDefaultBool("DRY_RUN", false)
+	switch r.Method {
+	case "GET":
+		log.Info("GET yo")
+	case "POST":
+		log.Debug("Post yo")
 	}
 }
 
