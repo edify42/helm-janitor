@@ -22,14 +22,14 @@ jobs:
     - name: Install dependencies
       run: |
         go version
-        go get -u golang.org/x/lint/golint
+        make deps
       
     # Run vet & lint on the code
     - name: Run vet & lint
       run: |
-        go vet .
-        golint .
+        make lint
+        make vet
     
     # Run testing on the code
     - name: Run testing
-      run: make
+      run: make test-cover
