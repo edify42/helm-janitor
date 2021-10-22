@@ -38,16 +38,12 @@ func New(cluster *types.Cluster, tok token.Token) (*kubernetes.Clientset, error)
 	return clientset, nil
 }
 
-// <experiment>
-// Generator is experimental... AS IS ALL CODE BELOW...
+// GeneratorType is used
 type GeneratorType struct {
 	Context context.Context
 }
 
-func NewGenerator() *GeneratorType {
-	return &GeneratorType{}
-}
-
+// Generator interface which describes the k8s master API server we connect to
 type Generator interface {
 	DescribeCluster(*eks.Client, string) (*eks.DescribeClusterOutput, error)
 	GenToken(*string) (token.Token, error)
@@ -57,6 +53,7 @@ type Generator interface {
 	// GetWithOptions(*token.GetTokenOptions) (token.Token, error)
 }
 
+// DescribeCluster calls the AWS SDK EKS API to get details on the cluster
 func (g *GeneratorType) DescribeCluster(e *eks.Client, cluster string) (*eks.DescribeClusterOutput, error) {
 	return e.DescribeCluster(g.Context, &eks.DescribeClusterInput{Name: &cluster})
 }
@@ -75,8 +72,6 @@ func (g *GeneratorType) TestCluster(r *types.Cluster, tok token.Token) error {
 	log.Debugf("There are %d nodes associated with cluster %s", len(nodes.Items), *r.Name)
 	return nil
 }
-
-// </experiment> UP TO HERE END EXPERIMENT with small mods to the function below.
 
 // GenToken will get the EKS cluster oauth2 token.
 // Consider refresh flow instead and make token private
