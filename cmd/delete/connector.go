@@ -85,13 +85,15 @@ func (c *Client) Deleterelease(eks client.EKSCluster, a *action.Configuration, r
 	settings.KubeToken = eks.Token
 	settings.KubeCaFile = eks.CAFile
 	if err := a.Init(settings.RESTClientGetter(), rel.Namespace, "secrets", log.Infof); err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return err
 	}
 	run := del.ActionNewUninstall(a)
 	run.DryRun = c.Dryrun
 	out, err := del.RunCommand(rel.Name)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return err
 	}
 	log.Infof("deleted: %s", out.Info)
 

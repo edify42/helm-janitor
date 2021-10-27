@@ -1,14 +1,18 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
+	"github.com/lendi-au/helm-janitor/cmd/delete"
 	"github.com/lendi-au/helm-janitor/cmd/scan"
 	"github.com/lendi-au/helm-janitor/internal/config"
+	"github.com/lendi-au/helm-janitor/pkg/container"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -56,9 +60,30 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "can't read body", http.StatusBadRequest)
 			return
 		}
-		fmt.Print(string(body[:]))
-		test, _ := json.Marshal(string(body[:]))
-		log.Debugf("body was: %v", test)
+		if !json.Valid(body) {
+			log.Print("Error reading body - not well-formed JSON")
+			http.Error(w, "Can't read body - not well-formed JSON", http.StatusBadRequest)
+			return
+		}
+		ctx := context.Background()
+		var data container.KeyArray
+		var selector []string
+		json.Unmarshal(body, &data)
+		for _, item := range data {
+			selector = append(selector, fmt.Sprintf("%s=%s", item.Key, item.Value))
+		}
+		labelSelector := strings.Join(selector[:], ",")
+		log.Debugf("finding releases matching labels %s", labelSelector)
+		scanner := scan.NewScanClient()
+		scanner.Dryrun = config.GetenvWithDefaultBool("DRY_RUN", false)
+		scanner.AllNamespaces = config.GetenvWithDefaultBool("ALL_NAMESPACES", true)
+		scanner.Namespace = config.GetenvWithDefault("NAMESPACE", "")
+		scanner.IncludeNamespaces = config.GetenvWithDefault("INCLUDE_NAMESPACES", "")
+		scanner.ExcludeNamespaces = config.GetenvWithDefault("EXCLUDE_NAMESPACES", "")
+		scanner.Context = ctx
+		scanner.Init()
+		delete.RunDeleteSet(scanner)
+		ctx.Done() // how to context again...
 	}
 }
 
