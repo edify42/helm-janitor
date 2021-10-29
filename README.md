@@ -1,5 +1,5 @@
 # helm-janitor
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/lendi-au/helm-janitor)](https://goreportcard.com/report/github.com/lendi-au/helm-janitor)
 ![Helm+Janitor](art/helm+janitor.png)
 
 _helm-janitor_ is an API interface to clean up releases in your k8s cluster.
