@@ -103,6 +103,11 @@ permissions to remove a helm release.
 
 We may reject PRs that break compatibility with our k8s setup.
 
+## updates
+
+As per AWS go1.x deprecation, migrated the lambda code to provided.al2023
+[ref](https://aws.amazon.com/blogs/compute/migrating-aws-lambda-functions-from-the-go1-x-runtime-to-the-custom-runtime-on-amazon-linux-2/)
+
 ## future work
 
 - Support SQL backends?
