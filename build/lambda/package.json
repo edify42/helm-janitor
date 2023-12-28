@@ -5,9 +5,10 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "serverless": "^2.53.1"
+    "serverless": "^3.38.0"
   },
   "scripts": {
+    "clean": "rm -rf .serverless bin node_modules",
     "package": "serverless package"
   }
 }
