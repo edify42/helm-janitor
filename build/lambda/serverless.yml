@@ -44,12 +44,15 @@ functions:
           enabled: ${opt:schedule, true}
     package:
       artifact: bin/lambda/schedule.zip
+    memorySize: 768
+    timeout: 240
   custom:
     handler: bootstrap
     package:
       artifact: bin/lambda/custom.zip
   api:
     handler: bootstrap
+    timeout: 30
     events:
       - http:
           path: hello
