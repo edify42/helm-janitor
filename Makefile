@@ -1,11 +1,9 @@
 test-cover: clean
 	go test ./... -coverprofile coverage.html
 
-deps:
-	go get -u golang.org/x/lint/golint
-
-lint: deps
-	golint ./...
+lint:
+	go install github.com/mgechev/revive@latest
+	revive ./...
 
 vet:
 	go vet ./...
