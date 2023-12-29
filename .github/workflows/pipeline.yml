@@ -18,11 +18,6 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.21.0'
-    
-    - name: Install dependencies
-      run: |
-        go version
-        make deps
       
     # Run vet & lint on the code
     - name: Run vet & lint
