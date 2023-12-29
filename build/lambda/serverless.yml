@@ -1,11 +1,12 @@
 service: helm-janitor
-
+frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: go1.x
   memorySize: 512
   timeout: 120
+  architecture: arm64
+  runtime: provided.al2023
   region: ap-southeast-2
   stage: ${opt:stage, 'development'}
   deploymentBucket:
@@ -36,21 +37,28 @@ provider:
 
 functions:
   schedule:
-    handler: bin/schedule
+    handler: bootstrap
     events:
       - schedule:
           rate: ${opt:rate, 'rate(120 minutes)'}
           enabled: ${opt:schedule, true}
+    package:
+      artifact: bin/lambda/schedule.zip
+    memorySize: 768
+    timeout: 240
   custom:
-    handler: bin/custom
+    handler: bootstrap
+    package:
+      artifact: bin/lambda/custom.zip
   api:
-    handler: bin/api
+    handler: bootstrap
+    timeout: 30
     events:
       - http:
           path: hello
           method: post
+    package:
+      artifact: bin/lambda/api.zip
 
 package:
-  patterns:
-    - '!**'
-    - 'bin/**'
+  individually: true

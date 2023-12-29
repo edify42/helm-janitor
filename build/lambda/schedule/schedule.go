@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/lendi-au/helm-janitor/cmd/scan"
 	"github.com/lendi-au/helm-janitor/internal/config"
 	log "github.com/sirupsen/logrus"
@@ -52,7 +53,7 @@ func HandleRequest() error {
 
 func main() {
 	log.Infof("starting")
-	HandleRequest()
-	// lambda.Start(HandleRequest)
+	// HandleRequest() // USE THIS IF TESTING
+	lambda.Start(HandleRequest)
 	log.Infof("finished")
 }
