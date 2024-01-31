@@ -66,19 +66,19 @@ func HandleRequest(ctx context.Context, event interface{}) error {
 	case events.GithubWebhookEvent:
 		log.Debugf("my action is a %v with pr %v and repo %v", event.Action, event.PullRequest, event.Repository)
 		a := validBranchName(event.PullRequest.State)
-		b := fmt.Sprintf("BRANCH=%s,REPOSITORY=%s", a, event.PullRequest.Head.Repository.Name)
+		b := fmt.Sprintf("BRANCH=%s,REPO=%s", a, event.PullRequest.Head.Repository.Name)
 		scanner.Selector = b
 	case events.BitbucketWebhookEvent:
 		log.Debugf("my pr %v on the repo %v", event.PullRequest, event.Repository)
 		a := validBranchName(event.PullRequest.Source.Branch.Name)
-		b := fmt.Sprintf("BRANCH=%s,REPOSITORY=%s", a, event.Repository.Name)
+		b := fmt.Sprintf("BRANCH=%s,REPO=%s", a, event.Repository.Name)
 		scanner.Selector = b
 	default:
 		a := new(events.BitbucketWebhookEvent)
 		_ = json.Unmarshal(test, a)
 		b := validBranchName(a.PullRequest.Source.Branch.Name)
 		log.Infof("tried: %s on branch %s", a.Repository.Name, b)
-		c := fmt.Sprintf("BRANCH=%s,REPOSITORY=%s", b, a.Repository.Name)
+		c := fmt.Sprintf("BRANCH=%s,REPO=%s", b, a.Repository.Name)
 		scanner.Selector = c
 	}
 	scanner.Dryrun = config.GetenvWithDefaultBool("DRY_RUN", false)
@@ -99,7 +99,7 @@ func main() {
 		a := validBranchName("feature/DE-4258-define-coversheet-view-model-and-conversion-for-se-incomes")
 		b := "decision-engine-team"
 		HandleRequest(ctx, EventBody{
-			Name: fmt.Sprintf("BRANCH=%s,REPOSITORY=%s,helm-janitor=true", a, b),
+			Name: fmt.Sprintf("BRANCH=%s,REPO=%s,helm-janitor=true", a, b),
 			Time: Test{
 				Timmy: "now",
 			},

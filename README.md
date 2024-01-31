@@ -28,7 +28,7 @@ Support 2 modes of running (delete | scan)
 
 [command]
 delete <selector> # helm-janitor=true
-scan <selector> # BRANCH=feat/test-something,REPOSITORY=cool-repo
+scan <selector> # BRANCH=feat/test-something,REPO=cool-repo
 
 [options]
 --namespace <namespace>
