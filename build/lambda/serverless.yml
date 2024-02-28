@@ -3,7 +3,7 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  memorySize: 512
+  memorySize: 1024
   timeout: 120
   architecture: arm64
   runtime: provided.al2023
@@ -44,7 +44,6 @@ functions:
           enabled: ${opt:schedule, true}
     package:
       artifact: bin/lambda/schedule.zip
-    memorySize: 768
     timeout: 240
   custom:
     handler: bootstrap
